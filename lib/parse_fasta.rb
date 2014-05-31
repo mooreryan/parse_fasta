@@ -16,18 +16,16 @@
 
 require "parse_fasta/version"
 
-module ParseFasta
-  class File
-    def each_record
-      self.each("\n>") do |line|
-        header, sequence = parse_line(line)
-        yield header.strip, sequence
-      end
+class File
+  def each_record
+    self.each("\n>") do |line|
+      header, sequence = parse_line(line)
+      yield header.strip, sequence
     end
+  end
 
-    private
-    def parse_line(line)
-      line.chomp.split("\n", 2).map { |s| s.gsub(/\n|>/, '') }
-    end
+  private
+  def parse_line(line)
+    line.chomp.split("\n", 2).map { |s| s.gsub(/\n|>/, '') }
   end
 end
