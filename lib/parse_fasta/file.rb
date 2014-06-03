@@ -16,7 +16,16 @@
 # You should have received a copy of the GNU General Public License
 # along with parse_fasta.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'parse_fasta/version'
-require 'parse_fasta/file'
-require 'parse_fasta/fasta_file'
-require 'parse_fasta/sequence'
+class File
+  def each_record
+    self.each("\n>") do |line|
+      header, sequence = parse_line(line)
+      yield header.strip, sequence
+    end
+  end
+
+  private
+  def parse_line(line)
+    line.chomp.split("\n", 2).map { |s| s.gsub(/\n|>/, '') }
+  end
+end
