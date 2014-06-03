@@ -1,7 +1,15 @@
 require 'spec_helper'
+require 'bio'
 
 describe Sequence do
   describe "#gc" do
+
+    it "gives the same answer as BioRuby" do
+      s = 'ACtgcGAtcgCgAaTtGgCcnNuU'
+      bioruby_gc = Bio::Sequence::NA.new(s).gc_content
+      expect(Sequence.new(s).gc).to eq bioruby_gc
+    end
+
     context "when sequence isn't empty" do
       it "calculates gc" do
         s = Sequence.new('ActGnu')
