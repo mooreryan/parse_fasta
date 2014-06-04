@@ -25,7 +25,8 @@ that I find myself doing over and over.
 
 ## Documentation ##
 
-Checkout `https://rubygems.org/gems/parse_fasta` to see the docs.
+Checkout [parse_fasta](https://rubygems.org/gems/parse_fasta) to see
+the docs.
 
 ## Usage ##
 
