@@ -18,4 +18,5 @@
 
 require 'parse_fasta/version'
 require 'parse_fasta/fasta_file'
+require 'parse_fasta/fastq_file'
 require 'parse_fasta/sequence'
