@@ -27,7 +27,28 @@ fasta files!
 
 ## Usage ##
 
-An example that lists the length for each sequence.
+### Version 1.0.0 (current) ###
+
+The monkey patch of the `File` class is no more! Here is the new print
+length example:
+
+	require 'parse_fasta'
+
+	FastaFile.open(ARGV.first, 'r').each_record do |header, sequence|
+	  puts [header, sequence.length].join("\t")
+	end
+
+And here, a script to calculate GC content:
+
+	require 'parse_fasta'
+
+	FastaFile.open(ARGV.first, 'r').each_record do |header, sequence|
+	  puts [header, sequence.gc].join("\t")
+	end
+
+### Version 0.0.5 (old) ###
+
+An example that lists the length for each sequence. (Won't work in version 1.0.0)
 
     require 'parse_fasta'
 
