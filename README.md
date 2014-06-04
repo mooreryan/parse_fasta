@@ -23,6 +23,10 @@ keep writing annoying boilerplate fasta parsing code everytime I go to
 do something with one. I will probably add more, but likely only tasks
 that I find myself doing over and over.
 
+## Documentation ##
+
+Checkout `https://rubygems.org/gems/parse_fasta` to see the docs.
+
 ## Usage ##
 
 ### Version 1.0.0 (current) ###
