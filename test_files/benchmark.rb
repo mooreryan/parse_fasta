@@ -22,19 +22,49 @@ require 'parse_fasta'
 require 'bio'
 require 'benchmark'
 
-def parse_fasta fname
-  File.open(fname, 'r').each_record do |header, sequence|
+def this_parse_fasta fname
+  FastaFile.open(fname, 'r').each_record do |header, sequence|
     [header, sequence.length].join("\t")
   end
 end
 
-def bioruby fname
+def bioruby_parse_fasta fname
   Bio::FastaFormat.open(fname).each do |entry|
     [entry.definition, entry.seq.length].join("\t")
   end
 end
 
+# Benchmark.bmbm do |x|
+#   x.report('parse_fasta') { this_parse_fasta(ARGV.first) }
+#   x.report('bioruby')     { bioruby_parse_fasta(ARGV.first) }
+# end
+
+####
+
+def this_gc(str)
+  Sequence.new(str).gc
+end
+
+def bioruby_gc(str)
+  Bio::Sequence::NA.new(str).gc_content
+end
+
+# make a random sequence of given length
+def make_seq(num)
+  num.times.reduce('') { |str, n| str << %w[A a C c T t G g N n].sample }
+end
+
+s1 = make_seq(2000000)
+s2 = make_seq(4000000)
+s3 = make_seq(8000000)
+
 Benchmark.bmbm do |x|
-  x.report('parse_fasta') { parse_fasta(ARGV.first) }
-  x.report('bioruby')     { bioruby(ARGV.first) }
+  x.report('this_gc 1') { this_gc(s1) }
+  x.report('bioruby_gc 1') { bioruby_gc(s1) }
+
+  x.report('this_gc 2') { this_gc(s2) }
+  x.report('bioruby_gc 2') { bioruby_gc(s2) }
+
+  x.report('this_gc 3') { this_gc(s3) }
+  x.report('bioruby_gc 3') { bioruby_gc(s3) }
 end
