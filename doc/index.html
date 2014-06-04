@@ -82,14 +82,10 @@
 
 <h2 id="label-Overview">Overview</h2>
 
-<p>Provides the method <code>#each_record</code> for the <code>File</code>
-class.</p>
-
-<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_each_record'>each_record</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_header'>header</span><span class='comma'>,</span> <span class='id identifier rubyid_sequence'>sequence</span><span class='op'>|</span> <span class='id identifier rubyid_block'>block</span> <span class='rbrace'>}</span>
-</code></pre>
-
-<p>The whole file is not loaded into memory, so have no fear of giant fasta
-files!</p>
+<p>I wanted a simple, fast way to parse fasta files so I wouldn&#39;t have to
+keep writing annoying boilerplate fasta parsing code everytime I go to do
+something with one. I will probably add more, but likely only tasks that I
+find myself doing over and over.</p>
 
 <h2 id="label-Usage">Usage</h2>
 
@@ -128,6 +124,13 @@ version 1.0.0)</p>
 
 <h2 id="label-Benchmark">Benchmark</h2>
 
+<p>Take these with a grain of salt since <code>BioRuby</code> is a heavy
+weight module with lots of features and error checking, whereas
+<code>parse_fasta</code> is meant to be lightweight and easy to use for my
+own coding.</p>
+
+<h3 id="label-FastaFile%23each_record">FastaFile#each_record</h3>
+
 <p>Just for fun, I wanted to compare the execution time to that of BioRuby. I
 calculated sequence length for each fasta record with both the
 <code>each_record</code> method from this gem and using the
@@ -145,6 +148,31 @@ bioruby     116.250000   2.260000 118.510000 (120.223710)</code></pre>
 <p>I just wanted a nice, clean way to parse fasta files, but being nearly
 twice as fasta as BioRuby doesn&#39;t hurt either!</p>
 
+<h3 id="label-Sequence%23gc">Sequence#gc</h3>
+
+<p>I played around with a few different implementations for the
+<code>#gc</code> method and found this one to be the fastest.</p>
+
+<p>The test is done one random strings mating <code>/[AaCcTtGgUu]/</code>.
+<code>this_gc</code> is <code>Sequence.new(str).gc</code>, and
+<code>bioruby_gc</code> is
+<code>Bio::Sequence::NA.new(str).gc_content</code>.</p>
+
+<p>To see how the methods scale, the test 1 string was 2,000,000 bases, test 2
+was 4,000,000 and test 3 was 8,000,000 bases.</p>
+
+<pre class="code ruby"><code class="ruby">                   user     system      total        real
+this_gc 1      0.030000   0.000000   0.030000 (  0.029145)
+bioruby_gc 1   2.030000   0.010000   2.040000 (  2.157512)
+
+this_gc 2      0.060000   0.000000   0.060000 (  0.059408)
+bioruby_gc 2   4.060000   0.020000   4.080000 (  4.334159)
+
+this_gc 3      0.120000   0.000000   0.120000 (  0.185434)
+bioruby_gc 3   8.060000   0.020000   8.080000 (  8.659071)</code></pre>
+
+<p>Nice!</p>
+
 <h2 id="label-Notes">Notes</h2>
 
 <p>Currently in doesn&#39;t check whether your file is actually a fasta file
@@ -152,7 +180,7 @@ or anything, so watch out.</p>
 </div></div>
 
     <div id="footer">
-  Generated on Tue Jun  3 22:55:41 2014 by
+  Generated on Tue Jun  3 23:40:27 2014 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.8.7.4 (ruby-2.1.1).
 </div>
