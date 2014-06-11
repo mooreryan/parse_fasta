@@ -54,17 +54,40 @@ def make_seq(num)
   num.times.reduce('') { |str, n| str << %w[A a C c T t G g N n].sample }
 end
 
-s1 = make_seq(2000000)
-s2 = make_seq(4000000)
-s3 = make_seq(8000000)
+# s1 = make_seq(2000000)
+# s2 = make_seq(4000000)
+# s3 = make_seq(8000000)
 
+# Benchmark.bmbm do |x|
+#   x.report('this_gc 1') { this_gc(s1) }
+#   x.report('bioruby_gc 1') { bioruby_gc(s1) }
+
+#   x.report('this_gc 2') { this_gc(s2) }
+#   x.report('bioruby_gc 2') { bioruby_gc(s2) }
+
+#   x.report('this_gc 3') { this_gc(s3) }
+#   x.report('bioruby_gc 3') { bioruby_gc(s3) }
+# end
+
+fastq = ARGV.first
+
+def bioruby_fastq(fastq)
+  Bio::FlatFile.open(Bio::Fastq, fastq) do |fq| 
+    fq.each do |entry| 
+      [entry.definition, entry.seq.length].join("\t")
+    end
+  end
+end
+
+def this_fastq(fastq)
+  FastqFile.open(fastq).each_record do |head, seq, desc, qual|
+    [head, seq.length].join("\t")
+  end
+end
+
+
+# file is 4 million illumina reads (16,000,000 lines) 1.4gb
 Benchmark.bmbm do |x|
-  x.report('this_gc 1') { this_gc(s1) }
-  x.report('bioruby_gc 1') { bioruby_gc(s1) }
-
-  x.report('this_gc 2') { this_gc(s2) }
-  x.report('bioruby_gc 2') { bioruby_gc(s2) }
-
-  x.report('this_gc 3') { this_gc(s3) }
-  x.report('bioruby_gc 3') { bioruby_gc(s3) }
+  x.report('this_fastq') { this_fastq(ARGV.first) }
+  x.report('bioruby_fastq') { bioruby_fastq(ARGV.first) }
 end

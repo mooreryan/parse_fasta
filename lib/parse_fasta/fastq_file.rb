@@ -13,7 +13,7 @@ class FastqFile < File
       when 0
         header = line.sub(/^@/, '')
       when 1
-        sequence = line
+        sequence = Sequence.new(line)
       when 2
         description = line.sub(/^\+/, '')
       when 3
