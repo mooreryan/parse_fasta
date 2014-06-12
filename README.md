@@ -83,6 +83,11 @@ was 1.1 gigabytes. Here are the results from Ruby's `Benchmark` class:
 I just wanted a nice, clean way to parse fasta files, but being nearly
 twice as fasta as BioRuby doesn't hurt either!
 
+### FastqFile#each_record ###
+
+The same sequence length test as above, but this time with a fastq
+file containing 4,000,000 illumina reads
+
 ### Sequence#gc ###
 
 I played around with a few different implementations for the `#gc`

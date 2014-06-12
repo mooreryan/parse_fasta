@@ -71,6 +71,7 @@ end
 
 fastq = ARGV.first
 
+
 def bioruby_fastq(fastq)
   Bio::FlatFile.open(Bio::Fastq, fastq) do |fq| 
     fq.each do |entry| 
@@ -84,7 +85,6 @@ def this_fastq(fastq)
     [head, seq.length].join("\t")
   end
 end
-
 
 # file is 4 million illumina reads (16,000,000 lines) 1.4gb
 Benchmark.bmbm do |x|
