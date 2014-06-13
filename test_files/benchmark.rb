@@ -71,7 +71,6 @@ end
 
 fastq = ARGV.first
 
-
 def bioruby_fastq(fastq)
   Bio::FlatFile.open(Bio::Fastq, fastq) do |fq| 
     fq.each do |entry| 
