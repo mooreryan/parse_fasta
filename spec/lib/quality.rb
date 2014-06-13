@@ -16,8 +16,20 @@
 # You should have received a copy of the GNU General Public License
 # along with parse_fasta.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'parse_fasta/version'
-require 'parse_fasta/fasta_file'
-require 'parse_fasta/fastq_file'
-require 'parse_fasta/sequence'
-require 'parse_fasta/quality'
+require 'spec_helper'
+require 'bio'
+
+describe Quality do
+  let(:qual_string) { qual_string = Quality.new('ab%63:K') }
+  let(:bioruby_qual_scores) do 
+    Bio::Fastq.new("@seq1\nACTGACT\n+\n#{qual_string}").quality_scores
+  end
+
+  describe "#qual_scores" do
+    context "with illumina style quality scores" do
+      it "returns an array of quality scores" do
+        expect(qual_string.qual_scores).to eq bioruby_qual_scores
+      end
+    end
+  end
+end

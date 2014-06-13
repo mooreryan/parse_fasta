@@ -16,8 +16,18 @@
 # You should have received a copy of the GNU General Public License
 # along with parse_fasta.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'parse_fasta/version'
-require 'parse_fasta/fasta_file'
-require 'parse_fasta/fastq_file'
-require 'parse_fasta/sequence'
-require 'parse_fasta/quality'
+# Provide some methods for dealing with common tasks regarding
+# quality strings.
+class Quality < String
+
+  # Returns an array of illumina style quality scores for self. The
+  # quality scores generated will be Phred+33.
+  #
+  # @example Get quality score array of a Quality
+  #   Quality.new("!+5?I").qual_scores #=> [0, 10, 20, 30, 40]
+  #
+  # @return [Array<Fixnum>] the quality scores
+  def qual_scores
+    self.each_byte.map { |b| b - 33 }
+  end
+end
