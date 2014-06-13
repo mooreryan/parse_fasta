@@ -18,7 +18,6 @@
 
 # Provides simple interface for parsing four-line-per-record fastq
 # format files.
-
 class FastqFile < File
 
   # Analagous to File#each_line, #each_record is used to go through a
