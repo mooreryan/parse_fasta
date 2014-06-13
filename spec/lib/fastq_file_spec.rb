@@ -22,6 +22,11 @@ describe FastqFile do
         the_sequence = @records[0][1]
         expect(the_sequence).to be_a(Sequence)
       end
+
+      it "yields the quality string as a Quality class" do
+        the_quality = @records[0][3]
+        expect(the_quality).to be_a(Quality)
+      end
     end
   end
 end

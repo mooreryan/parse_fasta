@@ -19,14 +19,11 @@
 # Provide some methods for dealing with common tasks regarding
 # nucleotide sequences.
 class Sequence < String
-  def initialize(str)
-    super(str)
-  end
 
   # Returns GC content for self
   #
   # Calculates GC content by dividing count of G + C divided by count
-  # of G + C + T + A +U. If there are both T's and U's in the
+  # of G + C + T + A + U. If there are both T's and U's in the
   # Sequence, things will get weird, but then again, that wouldn't
   # happen, now would it!
   #
