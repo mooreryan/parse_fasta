@@ -90,32 +90,3 @@ end
 #   x.report('this_fastq') { this_fastq(ARGV.first) }
 #   x.report('bioruby_fastq') { bioruby_fastq(ARGV.first) }
 # end
-
-# make a random sequence of given length
-def make_qual(num)
-  choices = "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHI".split('')
-  num.times.reduce('') { |str, _| str << choices.sample }
-end
-
-s1 = make_qual(20000000)
-s2 = make_qual(40000000)
-s3 = make_qual(80000000)
-
-def this_qual_scores(qual_string)
-  Quality.new(qual_string)
-end
-
-def bioruby_qual_scores(qual_string)
-  Bio::Fastq.new("@a\nA\n+\n#{qual_string}").quality_scores
-end
-
-Benchmark.bmbm do |x|
-  x.report('this_qual_scores 1') { this_qual_scores(s1) }
-  x.report('bioruby_qual_scores 1') { bioruby_qual_scores(s1) }
-
-  x.report('this_qual_scores 2') { this_qual_scores(s2) }
-  x.report('bioruby_qual_scores 2') { bioruby_qual_scores(s2) }
-
-  x.report('this_qual_scores 3') { this_qual_scores(s3) }
-  x.report('bioruby_qual_scores 3') { bioruby_qual_scores(s3) }
-end

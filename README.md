@@ -123,14 +123,6 @@ test 2 was 4,000,000 and test 3 was 8,000,000 bases.
 
 Nice!
 
-### Quality#qual_scores ###
-
-This time I used three test strings of 20,000,000 bases, 40,000,000
-bases and 80,000,000 bases. Why not. You might be thinking, Gee, why
-would I ever use this on a quality string this long. My reads are only
-250 bp long! The answer to your question is that I dream of 40 million
-base pair reads. So I'm testing them :)
-
 ## Notes ##
 
 Currently in doesn't check whether your file is actually a fasta file
