@@ -20,8 +20,8 @@
 # quality strings.
 class Quality < String
 
-  # Returns an array of illumina style quality scores for self. The
-  # quality scores generated will be Phred+33.
+  # Returns an array of illumina style quality scores. The quality
+  # scores generated will be Phred+33.
   #
   # @example Get quality score array of a Quality
   #   Quality.new("!+5?I").qual_scores #=> [0, 10, 20, 30, 40]

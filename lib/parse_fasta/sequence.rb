@@ -20,7 +20,7 @@
 # nucleotide sequences.
 class Sequence < String
 
-  # Returns GC content for self
+  # Calculates GC content
   #
   # Calculates GC content by dividing count of G + C divided by count
   # of G + C + T + A + U. If there are both T's and U's in the

@@ -18,22 +18,20 @@ Or install it yourself as:
 
 ## Overview ##
 
-I wanted a simple, fast way to parse fasta files so I wouldn't have to
-keep writing annoying boilerplate fasta parsing code everytime I go to
-do something with one. I will probably add more, but likely only tasks
-that I find myself doing over and over.
+I wanted a simple, fast way to parse fasta and fastq files so I
+wouldn't have to keep writing annoying boilerplate parsing code
+everytime I go to do something with a fasta or fastq file. I will
+probably add more, but likely only tasks that I find myself doing over
+and over.
 
 ## Documentation ##
 
-Checkout [parse_fasta docs](http://rubydoc.info/gems/parse_fasta/1.0.1/frames) to see
-the docs.
+Checkout [parse_fasta docs](http://rubydoc.info/gems/parse_fasta/1.1.0/frames) to see
+the full documentation.
 
 ## Usage ##
 
-### Version 1.0.0 (current) ###
-
-The monkey patch of the `File` class is no more! Here is the new print
-length example:
+A little script to print header and length of each record.
 
 	require 'parse_fasta'
 
@@ -43,28 +41,37 @@ length example:
 
 And here, a script to calculate GC content:
 
-	require 'parse_fasta'
-
 	FastaFile.open(ARGV.first, 'r').each_record do |header, sequence|
 	  puts [header, sequence.gc].join("\t")
 	end
 
-### Version 0.0.5 (old) ###
+Now we can parse fastq files as well!
 
-An example that lists the length for each sequence. (Won't work in
-version 1.0.0)
-
-    require 'parse_fasta'
-
-	File.open(ARGV.first, 'r').each_record do |header, sequence|
-	  puts [header, sequence.length].join("\t")
+	FastqFile.open(ARGV.first, 'r').each_record do |head, seq, desc, qual|
+	  puts [header, seq, desc, qual.qual_scores.join(',')].join("\t")
 	end
+
+## Versions ##
+
+### 1.1.0 ###
+
+Added: Fastq and Quality classes
+
+### 1.0.0 ###
+
+Added: Fasta and Sequence classes
+
+Removed: File monkey patch
+
+### 0.0.5 ###
+
+Last version with File monkey patch.
 
 ## Benchmark ##
 
-Take these with a grain of salt since `BioRuby` is a heavy weight
+Take these with a grain of salt since `BioRuby` is a big module
 module with lots of features and error checking, whereas `parse_fasta`
-is meant to be lightweight and easy to use for my own coding.
+is meant to be lightweight and easy to use for my own research.
 
 ### FastaFile#each_record ###
 
@@ -86,14 +93,18 @@ twice as fasta as BioRuby doesn't hurt either!
 ### FastqFile#each_record ###
 
 The same sequence length test as above, but this time with a fastq
-file containing 4,000,000 illumina reads
+file containing 4,000,000 illumina reads.
+
+                        user     system      total        real
+    this_fastq     62.610000   1.660000  64.270000 ( 64.389408)
+    bioruby_fastq 165.500000   2.100000 167.600000 (167.969636)
 
 ### Sequence#gc ###
 
 I played around with a few different implementations for the `#gc`
 method and found this one to be the fastest.
 
-The test is done one random strings mating `/[AaCcTtGgUu]/`. `this_gc`
+The test is done on random strings mating `/[AaCcTtGgUu]/`. `this_gc`
 is `Sequence.new(str).gc`, and `bioruby_gc` is
 `Bio::Sequence::NA.new(str).gc_content`.
 
@@ -111,6 +122,14 @@ test 2 was 4,000,000 and test 3 was 8,000,000 bases.
     bioruby_gc 3   8.060000   0.020000   8.080000 (  8.659071)
 
 Nice!
+
+### Quality#qual_scores ###
+
+This time I used three test strings of 20,000,000 bases, 40,000,000
+bases and 80,000,000 bases. Why not. You might be thinking, Gee, why
+would I ever use this on a quality string this long. My reads are only
+250 bp long! The answer to your question is that I dream of 40 million
+base pair reads. So I'm testing them :)
 
 ## Notes ##
 
