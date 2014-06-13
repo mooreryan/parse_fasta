@@ -33,10 +33,10 @@ class FastqFile < File
   # @yieldparam header [String] The header of the fastq record without
   #   the leading '@'
   # @yieldparam sequence [Sequence] The sequence of the fastq record
-  # @yieldparam sequence [String] The description line of the fastq
+  # @yieldparam description [String] The description line of the fastq
   #   record without the leading '+'
-  # @yieldparam sequence [Quality] The quality string of the fastq
-  #   record
+  # @yieldparam quality string [Quality] The quality string of the
+  #   fastq record
   def each_record
     count = 0
     header = ''

@@ -26,8 +26,9 @@ and over.
 
 ## Documentation ##
 
-Checkout [parse_fasta docs](http://rubydoc.info/gems/parse_fasta/1.1.0/frames) to see
-the full documentation.
+Checkout
+[parse_fasta docs](http://rubydoc.info/gems/parse_fasta/1.1.0/frames)
+to see the full documentation.
 
 ## Usage ##
 
