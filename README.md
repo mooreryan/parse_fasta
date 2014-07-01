@@ -54,6 +54,10 @@ Now we can parse fastq files as well!
 
 ## Versions ##
 
+### 1.1.2 ###
+
+Dropped Ruby requirement to 1.9.3
+
 ### 1.1.0 ###
 
 Added: Fastq and Quality classes
