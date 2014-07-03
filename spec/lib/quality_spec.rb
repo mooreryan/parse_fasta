@@ -32,4 +32,12 @@ describe Quality do
       end
     end
   end
+
+  describe "#mean_qual" do
+    it "returns the mean quality for the quality string" do
+      len = qual_string.length.to_f
+      mean_quality = qual_string.qual_scores.reduce(:+) / len
+      expect(qual_string.mean_qual).to eq mean_quality
+    end
+  end             
 end

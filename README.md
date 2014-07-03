@@ -32,6 +32,8 @@ to see the full documentation.
 
 ## Usage ##
 
+Some examples...
+
 A little script to print header and length of each record.
 
 	require 'parse_fasta'
@@ -54,9 +56,16 @@ Now we can parse fastq files as well!
 
 ## Versions ##
 
+### 1.2.0 ###
+
+Added `mean_qual` method to the `Quality` class.
+
 ### 1.1.2 ###
 
 Dropped Ruby requirement to 1.9.3
+
+(Note, if you want to build the docs with yard and you're using
+Ruby 1.9.3, you may have to install the redcarpet gem.)
 
 ### 1.1.0 ###
 

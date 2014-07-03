@@ -35,7 +35,7 @@ class FastqFile < File
   # @yieldparam sequence [Sequence] The sequence of the fastq record
   # @yieldparam description [String] The description line of the fastq
   #   record without the leading '+'
-  # @yieldparam quality string [Quality] The quality string of the
+  # @yieldparam quality_string [Quality] The quality string of the
   #   fastq record
   def each_record
     count = 0

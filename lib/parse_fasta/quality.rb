@@ -19,9 +19,19 @@
 # Provide some methods for dealing with common tasks regarding
 # quality strings.
 class Quality < String
+  # Returns the mean quality for the record. This will be a good deal
+  # faster than getting the average with `qual_scores` and reduce.
+  #
+  # @example Get mean quality score for a record
+  #   Quality.new("!+5?I").mean_qual #=> 20.0
+  #
+  # @return [Float] Mean quality score for record
+  def mean_qual
+    (self.sum - (self.length * 33)) / self.length.to_f
+  end
 
   # Returns an array of illumina style quality scores. The quality
-  # scores generated will be Phred+33.
+  # scores generated will be Phred+33 (i.e., new Illumina).
   #
   # @example Get quality score array of a Quality
   #   Quality.new("!+5?I").qual_scores #=> [0, 10, 20, 30, 40]
