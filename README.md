@@ -1,5 +1,7 @@
 # parse_fasta #
 
+[![Gem Version](https://badge.fury.io/rb/parse_fasta.svg)](http://badge.fury.io/rb/parse_fasta)
+
 So you want to parse a fasta file...
 
 ## Installation ##
