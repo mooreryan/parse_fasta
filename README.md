@@ -29,7 +29,7 @@ and over.
 ## Documentation ##
 
 Checkout
-[parse_fasta docs](http://rubydoc.info/gems/parse_fasta/1.1.0/frames)
+[parse_fasta docs](http://rubydoc.info/gems/parse_fasta/1.2.0/frames)
 to see the full documentation.
 
 ## Usage ##
