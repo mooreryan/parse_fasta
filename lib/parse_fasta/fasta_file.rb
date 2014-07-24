@@ -22,25 +22,56 @@ class FastaFile < File
   # Analagous to File#each_line, #each_record is used to go through a
   # fasta file record by record.
   #
-  # @example Parsing a fasta file
+  # @param separate_lines [Object] If truthy, separate lines of record
+  #   into an array, but if falsy, yield a Sequence object for the
+  #   sequence instead.
+  #
+  # @example Parsing a fasta file (default behavior)
   #   FastaFile.open('reads.fna', 'r').each_record do |header, sequence|
   #     puts [header, sequence.gc].join("\t")
   #   end
   # 
+  # @example Parsing a fasta file (with truthy value param)
+  #   FastaFile.open('reads.fna','r').each_record(1) do |header, sequence|
+  #     # header => 'sequence_1'
+  #     # sequence => ['AACTG', 'AGTCGT', ... ]
+  #   end
+  # 
   # @yield The header and sequence for each record in the fasta
   #   file to the block
+  #
   # @yieldparam header [String] The header of the fasta record without
   #   the leading '>'
-  # @yieldparam sequence [Sequence] The sequence of the fasta record
-  def each_record
-    self.each("\n>") do |line|
-      header, sequence = parse_line(line)
-      yield(header.strip, Sequence.new(sequence))
+  #
+  # @yieldparam sequence [Sequence, Array<String>] The sequence of the
+  #   fasta record. If `separate_lines` is falsy (the default
+  #   behavior), will be Sequence, but if truthy will be
+  #   Array<String>.
+  def each_record(separate_lines=nil)
+    if separate_lines
+      self.each("\n>") do |line|
+        header, sequence = parse_line_separately(line)
+        yield(header.strip, sequence)
+      end
+    else
+      self.each("\n>") do |line|
+        header, sequence = parse_line(line)
+        yield(header.strip, Sequence.new(sequence))
+      end
     end
   end
 
   private
   def parse_line(line)
     line.chomp.split("\n", 2).map { |s| s.gsub(/\n|>/, '') }
+  end
+
+  def parse_line_separately(line)
+    #line.chomp.split("\n", 2).map { |s| s.gsub(/>/, '') }
+    header, sequence = 
+      line.chomp.split("\n", 2).map { |s| s.gsub(/>/, '') }
+    sequences = sequence.split("\n").reject { |s| s.empty? }
+
+    [header, sequences]
   end
 end

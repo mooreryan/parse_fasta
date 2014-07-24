@@ -22,23 +22,39 @@ describe FastaFile do
   describe "#each_record" do
 
     let(:fname) { "#{File.dirname(__FILE__)}/../../test_files/test.fa" }
-    it "yields a block with header and sequence for each record in a fasta file" do
-      seqs = []
-      FastaFile.open(fname, 'r').each_record do |header, sequence|
-        seqs << [header, sequence]
-      end
-      
-      expect(seqs).to eq([["seq1 is fun", "AACTGGend"],
-                          ["seq2", "AATCCTGend"],
-                          ["seq3", "yyyyyyyyyyyyyyyend"]])
 
+    context "with no arguments" do 
+      it "yields header and sequence for each record in a fasta file" do
+        seqs = []
+        FastaFile.open(fname, 'r').each_record do |header, sequence|
+          seqs << [header, sequence]
+        end
+        
+        expect(seqs).to eq([["seq1 is fun", "AACTGGNNN"],
+                            ["seq2", "AATCCTGNNN"],
+                            ["seq3", "yyyyyyyyyyyyyyyNNN"]])
+
+      end
+
+      it "yields sequence of type Sequence as second parameter" do
+        FastaFile.open(fname, 'r').each_record do |header, sequence|
+          expect(sequence).to be_an_instance_of Sequence
+          break
+        end
+      end      
     end
 
-    it "passes sequence of type Sequence as second parameter" do
-      FastaFile.open(fname, 'r').each_record do |header, sequence|
-        expect(sequence).to be_an_instance_of Sequence
-        break
+    context "with a truthy argument" do
+      it "yields header and array of lines for each record" do
+        seqs = []
+        FastaFile.open(fname, 'r').each_record(1) do |header, sequence|
+          seqs << [header, sequence]
+        end
+
+        expect(seqs).to eq([["seq1 is fun", ["AACTGGNNN"]],
+                            ["seq2", ["AAT", "CCTGNNN"]],
+                            ["seq3", ["yyyyyyyyyy", "yyyyy", "NNN"]]])
       end
-    end      
+    end
   end
 end
