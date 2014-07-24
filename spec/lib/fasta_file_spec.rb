@@ -34,13 +34,11 @@ describe FastaFile do
 
     end
 
-    it "passes header of type string as first parameter" do
-      sequence_class = nil
+    it "passes sequence of type Sequence as second parameter" do
       FastaFile.open(fname, 'r').each_record do |header, sequence|
-        sequence_class = sequence.class
+        expect(sequence).to be_an_instance_of Sequence
         break
       end
-      expect(sequence_class).to be Sequence
     end      
   end
 end

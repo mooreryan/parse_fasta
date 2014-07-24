@@ -20,8 +20,12 @@ require 'spec_helper'
 require 'bio'
 
 describe Sequence do
-  describe "#gc" do
 
+  it "inherits from String" do
+    expect(Sequence.new('ACTG')).to be_a String
+  end
+
+  describe "#gc" do
     it "gives the same answer as BioRuby" do
       s = 'ACtgcGAtcgCgAaTtGgCcnNuU'
       bioruby_gc = Bio::Sequence::NA.new(s).gc_content
