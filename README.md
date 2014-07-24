@@ -29,7 +29,7 @@ and over.
 ## Documentation ##
 
 Checkout
-[parse_fasta docs](http://rubydoc.info/gems/parse_fasta/1.2.0/frames)
+[parse_fasta docs](http://rubydoc.info/gems/parse_fasta/1.3.0/frames)
 to see the full documentation.
 
 ## Usage ##
@@ -57,6 +57,45 @@ Now we can parse fastq files as well!
 	end
 
 ## Versions ##
+
+### 1.3.0 ###
+
+Add additional functionality to `each_record` method.
+
+#### Info ####
+
+I often like to use the fasta format for other things like so
+
+	>fruits
+	pineapple
+	pear
+	peach
+	>veggies
+	peppers
+	parsnip
+	peas
+
+rather than having this in a two column file like this
+
+	fruit,pineapple
+	fruit,pear
+	fruit,peach
+	veggie,peppers
+	veggie,parsnip
+	veggie,peas
+
+So I added functionality to `each_record` to keep each line a record
+separate in an array. Here's an example using the above file.
+
+    info = []
+	FastaFile.open(f, 'r').each_record(1) do |header, lines|
+	  info << [header, lines]
+	end
+
+Then info will contain the following arrays
+
+	['fruits', ['pineapple', 'pear', 'peach']],
+	['veggies', ['peppers', 'parsnip', 'peas']]
 
 ### 1.2.0 ###
 
