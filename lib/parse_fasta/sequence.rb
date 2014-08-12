@@ -111,6 +111,8 @@ class Sequence < String
   # @example Get base counts of DNA sequence with ambiguous bases
   #   Sequence.new('AcTGn').base_counts(true)
   #   #=> { a: 0.2, c: 0.2, t: 0.2, g: 0.2, n: 0.2 }
+  #
+  # @return [Hash] A hash with base as key, frequency as value
   def base_frequencies(count_ambiguous_bases=nil)
     base_counts = self.base_counts(count_ambiguous_bases)
     total_bases = base_counts.values.reduce(:+).to_f

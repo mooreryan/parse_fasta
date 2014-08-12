@@ -60,7 +60,10 @@ Now we can parse fastq files as well!
 
 ### 1.4.0 ###
 
-Added `Sequence.base_counts` method.
+Added methods:
+
+    Sequence.base_counts
+	Sequence.base_frequencies
 
 ### 1.3.0 ###
 
