@@ -82,6 +82,24 @@ describe Sequence do
         expect(s.base_counts(1)).to eq({ a: 2, c: 2, u: 2, g: 2, n: 2 })
       end
     end
-    
+
+    context "for a sequence with both U and T present" do
+      s = Sequence.new('AaCcTtGgNnUu')
+      err_message = 'ERROR: A sequence contains both T and U'
+
+      it "warns the user about having both U and T present" do
+        expect(s).to receive(:warn).with(err_message)
+        s.base_counts
+      end
+
+      it "returns a map that counts both U's and T's" do
+        expect(s.base_counts).to eq({ a: 2, c: 2, t: 2, u: 2, g: 2 })
+      end
+
+      it "returns a map with T, U and N if truthy argument given" do
+        base_counts = { a: 2, c: 2, t: 2, u: 2, g: 2, n: 2 }
+        expect(s.base_counts(1)).to eq(base_counts)
+      end
+    end
   end
 end

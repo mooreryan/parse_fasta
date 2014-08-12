@@ -50,16 +50,40 @@ class Sequence < String
     return (c + g).quo(c + g + t + a + u).to_f
   end
 
+
+  # Returns a map of base counts
+  #
+  # This method will check if the sequence is DNA or RNA and return a
+  # count map appropriate for each. If a truthy argument is given, the
+  # count of ambiguous bases will be returned as well.
+  #
+  # @example Get base counts of DNA sequence without ambiguous bases
+  #   Sequence.new('AcTGn').base_counts
+  #   #=> { a: 1, c: 1, t: 1, g: 1 }
+  # @example Get base counts of DNA sequence with ambiguous bases
+  #   Sequence.new('AcTGn').base_counts
+  #   #=> { a: 1, c: 1, t: 1, g: 1, n: 1 }
+  # @example Get base counts of RNA sequence without ambiguous bases
+  #   Sequence.new('AcUGn').base_counts
+  #   #=> { a: 1, c: 1, u: 1, g: 1 }
+  # @example Get base counts of DNA sequence with ambiguous bases
+  #   Sequence.new('AcUGn').base_counts
+  #   #=> { a: 1, c: 1, u: 1, g: 1, n: 1 }
+  #
+  # @return [Hash] A hash with base as key, count as value
   def base_counts(count_ambiguous_bases=nil)
     s = self.downcase
     t = s.count('t')
     u = s.count('u')
     counts = { a: s.count('a'), c: s.count('c'), g: s.count('g') }
 
-    if t > 0 and u == 0
+    if t > 0 && u == 0
       counts[:t] = t
-    elsif t == 0 and u > 0
+    elsif t == 0 && u > 0
       counts[:u] = u
+    elsif t > 0 && u > 0
+      warn('ERROR: A sequence contains both T and U')
+      counts[:t], counts[:u] = t, u
     end
     
     counts[:n] = s.count('n') if count_ambiguous_bases
