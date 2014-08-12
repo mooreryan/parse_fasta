@@ -50,7 +50,6 @@ class Sequence < String
     return (c + g).quo(c + g + t + a + u).to_f
   end
 
-
   # Returns a map of base counts
   #
   # This method will check if the sequence is DNA or RNA and return a
@@ -64,13 +63,13 @@ class Sequence < String
   #   Sequence.new('AcTGn').base_counts
   #   #=> { a: 1, c: 1, t: 1, g: 1 }
   # @example Get base counts of DNA sequence with ambiguous bases
-  #   Sequence.new('AcTGn').base_counts
+  #   Sequence.new('AcTGn').base_counts(true)
   #   #=> { a: 1, c: 1, t: 1, g: 1, n: 1 }
   # @example Get base counts of RNA sequence without ambiguous bases
   #   Sequence.new('AcUGn').base_counts
   #   #=> { a: 1, c: 1, u: 1, g: 1 }
   # @example Get base counts of DNA sequence with ambiguous bases
-  #   Sequence.new('AcUGn').base_counts
+  #   Sequence.new('AcUGn').base_counts(true)
   #   #=> { a: 1, c: 1, u: 1, g: 1, n: 1 }
   #
   # @return [Hash] A hash with base as key, count as value
@@ -92,5 +91,31 @@ class Sequence < String
     counts[:n] = s.count('n') if count_ambiguous_bases
     
     counts
+  end
+
+  # Returns a map of base frequencies
+  #
+  # Counts bases with the `base_counts` method, then divides each
+  # count by the total bases counted to give frequency for each
+  # base. If a truthy argument is given, ambiguous bases will be
+  # included in the total and their frequency reported. Can discern
+  # between DNA and RNA.
+  #
+  # If default or falsy argument is given, ambiguous bases will not be
+  # counted in the total base count and their frequency will not be
+  # given.
+  #
+  # @example Get base frequencies of DNA sequence without ambiguous bases
+  #   Sequence.new('AcTGn').base_counts
+  #   #=> { a: 0.25, c: 0.25, t: 0.25, g: 0.25 }
+  # @example Get base counts of DNA sequence with ambiguous bases
+  #   Sequence.new('AcTGn').base_counts(true)
+  #   #=> { a: 0.2, c: 0.2, t: 0.2, g: 0.2, n: 0.2 }
+  def base_frequencies(count_ambiguous_bases=nil)
+    base_counts = self.base_counts(count_ambiguous_bases)
+    total_bases = base_counts.values.reduce(:+).to_f
+    base_freqs = 
+      base_counts.map { |base, count| [base, count/total_bases] }.flatten
+    Hash[*base_freqs]
   end
 end

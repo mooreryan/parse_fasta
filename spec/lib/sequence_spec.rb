@@ -102,4 +102,22 @@ describe Sequence do
       end
     end
   end
+
+  describe "#base_frequencies" do
+    context "with falsy argument" do
+      it "doesn't count ambiguous bases in total bases" do
+        s = Sequence.new('ACTTn')
+        base_freqs = { a: 0.25, c: 0.25, t: 0.5, g: 0.0 }
+        expect(s.base_frequencies).to eq(base_freqs)
+      end
+    end
+
+    context "when counting ambiguous bases" do
+      it "does count ambiguous bases in total bases" do
+        s = Sequence.new('ACTTn')
+        base_freqs = { a: 0.2, c: 0.2, t: 0.4, g: 0.0, n: 0.2 }
+        expect(s.base_frequencies(1)).to eq(base_freqs)
+      end
+    end
+  end
 end
