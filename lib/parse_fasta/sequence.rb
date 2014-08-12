@@ -52,14 +52,18 @@ class Sequence < String
 
   def base_counts(count_ambiguous_bases=nil)
     s = self.downcase
-    counts = { 
-      a: s.count('a'), 
-      c: s.count('c'), 
-      t: s.count('t'),
-      g: s.count('g') 
-    }
+    t = s.count('t')
+    u = s.count('u')
+    counts = { a: s.count('a'), c: s.count('c'), g: s.count('g') }
+
+    if t > 0 and u == 0
+      counts[:t] = t
+    elsif t == 0 and u > 0
+      counts[:u] = u
+    end
+    
     counts[:n] = s.count('n') if count_ambiguous_bases
-      
+    
     counts
   end
 end

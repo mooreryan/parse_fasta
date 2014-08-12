@@ -55,7 +55,7 @@ describe Sequence do
   end
 
   describe "#base_counts" do
-    context "for a DNA sequence" do
+    context "for a DNA sequence with default or falsy argument" do
       it "returns a map of A, C, T, and G counts" do
         s = Sequence.new('ACTGactg')
         expect(s.base_counts).to eq({ a: 2, c: 2, t: 2, g: 2 })
@@ -69,5 +69,19 @@ describe Sequence do
       end
     end
 
+    context "for an RNA sequence with falsy or default argument" do
+      it "returns a map of A, C, U, G counts" do
+        s = Sequence.new('ACUGacug')
+        expect(s.base_counts).to eq({ a: 2, c: 2, u: 2, g: 2 })
+      end
+    end
+    
+    context "for an RNA sequence with truthy argument" do
+      it "returns a map of A, C, U, G and N counts" do
+        s = Sequence.new('ACUGNacugn')
+        expect(s.base_counts(1)).to eq({ a: 2, c: 2, u: 2, g: 2, n: 2 })
+      end
+    end
+    
   end
 end
