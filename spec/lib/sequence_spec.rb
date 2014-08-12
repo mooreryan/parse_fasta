@@ -53,4 +53,21 @@ describe Sequence do
       end
     end
   end
+
+  describe "#base_counts" do
+    context "for a DNA sequence" do
+      it "returns a map of A, C, T, and G counts" do
+        s = Sequence.new('ACTGactg')
+        expect(s.base_counts).to eq({ a: 2, c: 2, t: 2, g: 2 })
+      end
+    end
+
+    context "for a DNA sequence with truthy argument" do
+      it "returns a map of A, C, T, G and N counts" do
+        s = Sequence.new('ACTGNactgn')
+        expect(s.base_counts(1)).to eq({ a: 2, c: 2, t: 2, g: 2, n: 2 })
+      end
+    end
+
+  end
 end

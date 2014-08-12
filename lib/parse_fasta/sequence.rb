@@ -25,7 +25,8 @@ class Sequence < String
   # Calculates GC content by dividing count of G + C divided by count
   # of G + C + T + A + U. If there are both T's and U's in the
   # Sequence, things will get weird, but then again, that wouldn't
-  # happen, now would it!
+  # happen, now would it! Ambiguous bases are ignored similar to
+  # BioRuby.
   #
   # @example Get GC of a Sequence
   #   Sequence.new('ACTg').gc #=> 0.5
@@ -49,4 +50,16 @@ class Sequence < String
     return (c + g).quo(c + g + t + a + u).to_f
   end
 
+  def base_counts(count_ambiguous_bases=nil)
+    s = self.downcase
+    counts = { 
+      a: s.count('a'), 
+      c: s.count('c'), 
+      t: s.count('t'),
+      g: s.count('g') 
+    }
+    counts[:n] = s.count('n') if count_ambiguous_bases
+      
+    counts
+  end
 end
