@@ -57,6 +57,9 @@ class Sequence < String
   # count map appropriate for each. If a truthy argument is given, the
   # count of ambiguous bases will be returned as well.
   #
+  # If a sequence has both T and U present, will warn the user and
+  # keep going. Will return a map with counts of both, however.
+  #
   # @example Get base counts of DNA sequence without ambiguous bases
   #   Sequence.new('AcTGn').base_counts
   #   #=> { a: 1, c: 1, t: 1, g: 1 }

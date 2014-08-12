@@ -29,7 +29,7 @@ and over.
 ## Documentation ##
 
 Checkout
-[parse_fasta docs](http://rubydoc.info/gems/parse_fasta/1.3.0/frames)
+[parse_fasta docs](http://rubydoc.info/gems/parse_fasta/1.4.0/frames)
 to see the full documentation.
 
 ## Usage ##
@@ -57,6 +57,10 @@ Now we can parse fastq files as well!
 	end
 
 ## Versions ##
+
+### 1.4.0 ###
+
+Added `Sequence.base_counts` method.
 
 ### 1.3.0 ###
 

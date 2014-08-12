@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Ryan Moore"]
   spec.email         = ["moorer@udel.edu"]
   spec.summary       = %q{Easy-peasy parsing of fasta files}
-  spec.description   = %q{So you want to parse a fasta file...}
+  spec.description   = %q{So you want to parse a fasta or fastq file...}
   spec.homepage      = "https://github.com/mooreryan/parse_fasta"
   spec.license       = "GPLv3: http://www.gnu.org/licenses/gpl.txt"
 
