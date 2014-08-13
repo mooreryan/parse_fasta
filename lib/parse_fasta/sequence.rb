@@ -47,7 +47,7 @@ class Sequence < String
     u = s.count('u')
     
     return 0 if c + g + t + a + u == 0
-    return (c + g).quo(c + g + t + a + u).to_f
+    return (c + g) / (c + g + t + a + u).to_f
   end
 
   # Returns a map of base counts
