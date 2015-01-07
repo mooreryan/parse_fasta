@@ -1,4 +1,4 @@
-# Copyright 2014 Ryan Moore
+# Copyright 2014, 2015 Ryan Moore
 # Contact: moorer@udel.edu
 #
 # This file is part of parse_fasta.
