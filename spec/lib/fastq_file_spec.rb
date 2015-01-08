@@ -19,32 +19,49 @@
 require 'spec_helper'
 
 describe FastqFile do
-  describe "#each_record" do
-    let(:fname) { "#{File.dirname(__FILE__)}/../../test_files/test.fq" }
+  let(:records) {
+    [["seq1", "AACCTTGG", "", ")#3gTqN8"],
+     ["seq2 apples", "ACTG", "seq2 apples", "*ujM"]] }
 
-    context "with a 4 line per record fastq file" do
-      before do
-        @records = []
-        FastqFile.open(fname, 'r').each_record do |head, seq, desc, qual|
-          @records << [head, seq, desc, qual]
-        end
-      end
+  shared_examples_for "any FastqFile" do
+    it "yields proper header, sequence, description, and quality" do
+      p "hi im #{@fname}"
+      expect { |b|
+        FastqFile.open(@fname).each_record(&b)
+      }.to yield_successive_args(records[0], records[1])
+    end
 
-      it "yields the header, sequence, desc, and qual" do
-        expect(@records).to eq([["seq1", "AACCTTGG", "", ")#3gTqN8"],
-                               ["seq2 apples", "ACTG", "seq2 apples",
-                                "*ujM"]])
+    it "yields the sequence as a Sequence class" do
+      FastqFile.open(@fname).each_record do |_, seq, _, _|
+        expect(seq).to be_an_instance_of Sequence
       end
-      
-      it "yields the sequence as a Sequence class" do
-        the_sequence = @records[0][1]
-        expect(the_sequence).to be_a(Sequence)
-      end
+    end
 
-      it "yields the quality string as a Quality class" do
-        the_quality = @records[0][3]
-        expect(the_quality).to be_a(Quality)
+    it "yields the quality as a Quality class" do
+      FastqFile.open(@fname).each_record do |_, _, _, qual|
+        expect(qual).to be_an_instance_of Quality
       end
     end
   end
+  
+  context "with a 4 line per record fastq file" do
+    describe "#each_record" do
+      context "with a gzipped file" do
+        before(:each) do
+          @fname = "#{File.dirname(__FILE__)}/../../test_files/test.fq.gz"
+        end
+
+        it_behaves_like "any FastqFile"
+      end
+
+      context "with a non-gzipped file" do
+        before(:each) do
+          @fname = "#{File.dirname(__FILE__)}/../../test_files/test.fq"
+        end
+
+        it_behaves_like "any FastqFile"
+      end
+    end
+  end        
 end
+
