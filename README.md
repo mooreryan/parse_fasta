@@ -29,7 +29,7 @@ and over.
 ## Documentation ##
 
 Checkout
-[parse_fasta docs](http://rubydoc.info/gems/parse_fasta/1.4.0/frames)
+[parse_fasta docs](http://rubydoc.info/gems/parse_fasta/1.5.0/frames)
 to see the full documentation.
 
 ## Usage ##
@@ -57,6 +57,10 @@ Now we can parse fastq files as well!
 	end
 
 ## Versions ##
+
+### 1.5.0 ###
+
+Now accepts gzipped files. Huzzah!
 
 ### 1.4.0 ###
 

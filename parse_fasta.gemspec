@@ -8,8 +8,11 @@ Gem::Specification.new do |spec|
   spec.version       = ParseFasta::VERSION
   spec.authors       = ["Ryan Moore"]
   spec.email         = ["moorer@udel.edu"]
-  spec.summary       = %q{Easy-peasy parsing of fasta files}
-  spec.description   = %q{So you want to parse a fasta or fastq file...}
+  spec.summary       = %q{Easy-peasy parsing of fasta & fastq files!}
+  spec.description   =
+    "Provides nice, programmatic access to fasta " +
+    "and fastq files, as well as providing Sequence and Quality " +
+    "helper classes. No need for BioRuby ;)"
   spec.homepage      = "https://github.com/mooreryan/parse_fasta"
   spec.license       = "GPLv3: http://www.gnu.org/licenses/gpl.txt"
 
