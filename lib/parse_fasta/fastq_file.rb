@@ -16,11 +16,10 @@
 # You should have received a copy of the GNU General Public License
 # along with parse_fasta.  If not, see <http://www.gnu.org/licenses/>.
 
-# Provides simple interface for parsing four-line-per-record fastq
-# format files.
-
 require 'zlib'
 
+# Provides simple interface for parsing four-line-per-record fastq
+# format files. Gzipped files are no problem.
 class FastqFile < File
 
   # Analagous to IO#each_line, #each_record is used to go through a

@@ -16,23 +16,26 @@
 # You should have received a copy of the GNU General Public License
 # along with parse_fasta.  If not, see <http://www.gnu.org/licenses/>.
 
-# Provides simple interface for parsing fasta format files.
+require 'zlib'
+
+# Provides simple interface for parsing fasta format files. Gzipped
+# files are no problem.
 class FastaFile < File
 
-  # Analagous to File#each_line, #each_record is used to go through a
-  # fasta file record by record.
+  # Analagous to IO#each_line, #each_record is used to go through a
+  # fasta file record by record. It will accept gzipped files as well.
   #
   # @param separate_lines [Object] If truthy, separate lines of record
-  #   into an array, but if falsy, yield a Sequence object for the
-  #   sequence instead.
+  #   into an array of Sequences, but if falsy, yield a Sequence
+  #   object for the sequence instead.
   #
-  # @example Parsing a fasta file (default behavior)
-  #   FastaFile.open('reads.fna', 'r').each_record do |header, sequence|
+  # @example Parsing a fasta file (default behavior, gzip files are fine)
+  #   FastaFile.open('reads.fna.gz').each_record do |header, sequence|
   #     puts [header, sequence.gc].join("\t")
   #   end
   # 
   # @example Parsing a fasta file (with truthy value param)
-  #   FastaFile.open('reads.fna','r').each_record(1) do |header, sequence|
+  #   FastaFile.open('reads.fna').each_record(1) do |header, sequence|
   #     # header => 'sequence_1'
   #     # sequence => ['AACTG', 'AGTCGT', ... ]
   #   end
@@ -43,22 +46,31 @@ class FastaFile < File
   # @yieldparam header [String] The header of the fasta record without
   #   the leading '>'
   #
-  # @yieldparam sequence [Sequence, Array<String>] The sequence of the
+  # @yieldparam sequence [Sequence, Array<Sequence>] The sequence of the
   #   fasta record. If `separate_lines` is falsy (the default
   #   behavior), will be Sequence, but if truthy will be
   #   Array<String>.
   def each_record(separate_lines=nil)
+    begin
+      f = Zlib::GzipReader.open(self)
+    rescue Zlib::GzipFile::Error => e
+      f = self
+    end      
+
     if separate_lines
-      self.each("\n>") do |line|
+      f.each("\n>") do |line|
         header, sequence = parse_line_separately(line)
         yield(header.strip, sequence)
       end
     else
-      self.each("\n>") do |line|
+      f.each("\n>") do |line| 
         header, sequence = parse_line(line)
         yield(header.strip, Sequence.new(sequence))
       end
     end
+
+    f.close if f.instance_of?(Zlib::GzipReader)
+    return f
   end
 
   private
@@ -67,10 +79,11 @@ class FastaFile < File
   end
 
   def parse_line_separately(line)
-    #line.chomp.split("\n", 2).map { |s| s.gsub(/>/, '') }
     header, sequence = 
       line.chomp.split("\n", 2).map { |s| s.gsub(/>/, '') }
-    sequences = sequence.split("\n").reject { |s| s.empty? }
+    sequences = sequence.split("\n")
+      .reject { |s| s.empty? }
+      .map { |s| Sequence.new(s) }
 
     [header, sequences]
   end

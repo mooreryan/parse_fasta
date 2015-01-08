@@ -20,41 +20,82 @@ require 'spec_helper'
 
 describe FastaFile do
   describe "#each_record" do
+    let(:records) {
+      [["seq1 is fun", "AACTGGNNN"],
+       ["seq2", "AATCCTGNNN"],
+       ["seq3", "yyyyyyyyyyyyyyyNNN"]]
+    }
 
-    let(:fname) { "#{File.dirname(__FILE__)}/../../test_files/test.fa" }
+    let(:truthy_records) {
+      [["seq1 is fun", ["AACTGGNNN"]],
+       ["seq2", ["AAT", "CCTGNNN"]],
+       ["seq3", ["yyyyyyyyyy", "yyyyy", "NNN"]]]
+    }
+    let(:f_handle) { FastaFile.open(@fname).each_record { |s| } }
 
-    context "with no arguments" do 
-      it "yields header and sequence for each record in a fasta file" do
-        seqs = []
-        FastaFile.open(fname, 'r').each_record do |header, sequence|
-          seqs << [header, sequence]
+    shared_examples_for "any FastaFile" do
+      context "with no arguments" do
+        it "yields proper header and sequence for each record" do
+          expect { |b|
+            FastaFile.open(@fname).each_record(&b)
+          }.to yield_successive_args(*records)
+        end
+
+        it "yields the sequence as a Sequence class" do
+          FastaFile.open(@fname).each_record do |_, seq|
+            expect(seq).to be_an_instance_of Sequence
+          end
+        end
+      end
+
+      context "with a truthy argument" do
+        it "yields proper header and sequence for each record" do
+          expect { |b|
+            FastaFile.open(@fname).each_record(1, &b)
+          }.to yield_successive_args(*truthy_records)
+        end
+
+        it "yields the sequence as a Sequence class" do
+          FastaFile.open(@fname).each_record(1) do |_, seq|
+            all_Sequences = seq.map { |s| s.instance_of?(Sequence) }.all?
+            expect(all_Sequences).to be true
+          end
         end
         
-        expect(seqs).to eq([["seq1 is fun", "AACTGGNNN"],
-                            ["seq2", "AATCCTGNNN"],
-                            ["seq3", "yyyyyyyyyyyyyyyNNN"]])
-
-      end
-
-      it "yields sequence of type Sequence as second parameter" do
-        FastaFile.open(fname, 'r').each_record do |header, sequence|
-          expect(sequence).to be_an_instance_of Sequence
-          break
-        end
-      end      
-    end
-
-    context "with a truthy argument" do
-      it "yields header and array of lines for each record" do
-        seqs = []
-        FastaFile.open(fname, 'r').each_record(1) do |header, sequence|
-          seqs << [header, sequence]
-        end
-
-        expect(seqs).to eq([["seq1 is fun", ["AACTGGNNN"]],
-                            ["seq2", ["AAT", "CCTGNNN"]],
-                            ["seq3", ["yyyyyyyyyy", "yyyyy", "NNN"]]])
       end
     end
-  end
+
+    context "with a gzipped file" do
+      before(:each) do
+        @fname = "#{File.dirname(__FILE__)}/../../test_files/test.fa.gz"
+      end
+
+      it_behaves_like "any FastaFile"
+
+      it "closes the GzipReader" do
+        expect(f_handle).to be_closed
+      end
+
+      it "returns GzipReader object" do
+        expect(f_handle).to be_an_instance_of Zlib::GzipReader
+      end
+    end
+
+    context "with a non-gzipped file" do
+      before(:each) do
+        @fname = "#{File.dirname(__FILE__)}/../../test_files/test.fa"
+      end
+
+      it_behaves_like "any FastaFile"
+
+      it "doesn't close the FastqFile (approx regular file behavior)" do
+        expect(f_handle).not_to be_closed
+      end
+
+      it "returns FastaFile object" do
+        expect(f_handle).to be_an_instance_of FastaFile
+      end
+    end
+  end      
 end
+
