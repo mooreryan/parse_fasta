@@ -22,10 +22,11 @@ describe FastqFile do
   let(:records) {
     [["seq1", "AACCTTGG", "", ")#3gTqN8"],
      ["seq2 apples", "ACTG", "seq2 apples", "*ujM"]] }
+  let(:f_handle) { FastqFile.open(@fname).each_record { |s| } }
+
 
   shared_examples_for "any FastqFile" do
     it "yields proper header, sequence, description, and quality" do
-      p "hi im #{@fname}"
       expect { |b|
         FastqFile.open(@fname).each_record(&b)
       }.to yield_successive_args(records[0], records[1])
@@ -42,6 +43,7 @@ describe FastqFile do
         expect(qual).to be_an_instance_of Quality
       end
     end
+
   end
   
   context "with a 4 line per record fastq file" do
@@ -52,6 +54,14 @@ describe FastqFile do
         end
 
         it_behaves_like "any FastqFile"
+
+        it "closes the GzipReader" do
+          expect(f_handle).to be_closed
+        end
+
+        it "returns GzipReader object" do
+          expect(f_handle).to be_an_instance_of Zlib::GzipReader
+        end
       end
 
       context "with a non-gzipped file" do
@@ -60,6 +70,14 @@ describe FastqFile do
         end
 
         it_behaves_like "any FastqFile"
+
+        it "doesn't close the FastqFile (approx regular file behavior)" do
+          expect(f_handle).not_to be_closed
+        end
+
+        it "returns FastqFile object" do
+          expect(f_handle).to be_an_instance_of FastqFile
+        end
       end
     end
   end        

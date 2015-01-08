@@ -18,13 +18,20 @@
 
 # Provides simple interface for parsing four-line-per-record fastq
 # format files.
+
+require 'zlib'
+
 class FastqFile < File
 
-  # Analagous to File#each_line, #each_record is used to go through a
-  # fastq file record by record.
+  # Analagous to IO#each_line, #each_record is used to go through a
+  # fastq file record by record. It will accept gzipped files as well.
   #
   # @example Parsing a fastq file
-  #   FastqFile.open('reads.fq', 'r').each_record do |head, seq, desc, qual|
+  #   FastqFile.open('reads.fq').each_record do |head, seq, desc, qual|
+  #     # do some fun stuff here!
+  #   end
+  # @example Use the same syntax for gzipped files!
+  #   FastqFile.open('reads.fq.gz').each_record do |head, seq, desc, qual|
   #     # do some fun stuff here!
   #   end
   # 
@@ -43,8 +50,14 @@ class FastqFile < File
     sequence = ''
     description = ''
     quality = ''
+
+    begin
+      f = Zlib::GzipReader.open(self)
+    rescue Zlib::GzipFile::Error => e
+      f = self
+    end      
     
-    self.each_line do |line|
+    f.each_line do |line|
       line.chomp!
 
       case count % 4
@@ -61,5 +74,8 @@ class FastqFile < File
       
       count += 1
     end
+    
+    f.close if f.instance_of?(Zlib::GzipReader)
+    return f
   end
 end
