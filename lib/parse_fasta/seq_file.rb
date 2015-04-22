@@ -16,9 +16,32 @@
 # You should have received a copy of the GNU General Public License
 # along with parse_fasta.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'parse_fasta/version'
-require 'parse_fasta/fasta_file'
-require 'parse_fasta/fastq_file'
-require 'parse_fasta/seq_file'
-require 'parse_fasta/sequence'
-require 'parse_fasta/quality'
+class SeqFile < File
+  def each_record
+    first_char = get_first_char(self)
+    
+    if first_char == '>'
+      FastaFile.open(self).each_record do |header, sequence|
+        yield(header, sequence)
+      end
+    elsif first_char == '@'
+      FastqFile.open(self).each_record do |head, seq, desc, qual|
+        yield(head, seq)
+      end
+    else
+      raise ArgumentError, "Input does not look like FASTA or FASTQ"
+    end      
+  end
+
+  private
+
+  def get_first_char(f)
+    begin
+      handle = Zlib::GzipReader.open(f)
+    rescue Zlib::GzipFile::Error => e
+      handle = f
+    end      
+
+    handle.each_line.peek[0]
+  end
+end
