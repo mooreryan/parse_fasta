@@ -20,17 +20,15 @@ Or install it yourself as:
 
 ## Overview ##
 
-I wanted a simple, fast way to parse fasta and fastq files so I
-wouldn't have to keep writing annoying boilerplate parsing code
-everytime I go to do something with a fasta or fastq file. I will
-probably add more, but likely only tasks that I find myself doing over
-and over.
+Provides nice, programmatic access to fasta and fastq files, as well
+as providing Sequence and Quality helper classes. It's more
+lightweight than BioRuby. And more fun! ;)
 
 ## Documentation ##
 
 Checkout
-[parse_fasta docs](http://rubydoc.info/gems/parse_fasta/1.5.0/frames)
-to see the full documentation.
+[parse_fasta docs](http://rubydoc.info/gems/parse_fasta/1.6.0/frames)
+for the full api documentation.
 
 ## Usage ##
 
@@ -40,36 +38,51 @@ A little script to print header and length of each record.
 
 	require 'parse_fasta'
 
-	FastaFile.open(ARGV.first, 'r').each_record do |header, sequence|
+	FastaFile.open(ARGV[0]).each_record do |header, sequence|
 	  puts [header, sequence.length].join("\t")
 	end
 
 And here, a script to calculate GC content:
 
-	FastaFile.open(ARGV.first, 'r').each_record do |header, sequence|
+	FastaFile.open(ARGV[0]).each_record do |header, sequence|
 	  puts [header, sequence.gc].join("\t")
 	end
 
 Now we can parse fastq files as well!
 
-	FastqFile.open(ARGV.first, 'r').each_record do |head, seq, desc, qual|
-	  puts [header, seq, desc, qual.qual_scores.join(',')].join("\t")
+	FastqFile.open(ARGV[0]).each_record do |head, seq, desc, qual|
+	  puts [header, qual.qual_scores.join(',')].join("\t")
+	end
+
+What if you don't care if the input is a fastA or a fastQ? No problem!
+
+	SeqFile.open(ARGV[0]).each_record do |head, seq|
+	  puts [header, seq].join "\t"
 	end
 
 ## Versions ##
 
-### 1.5.0 ###
+### 1.6 ###
+
+Added `SeqFile` class, which accepts either fastA or fastQ files. It
+uses FastaFile and FastqFile internally. You can use this class if you
+want your scripts to accept either fastA or fastQ files.
+
+If you need the description and quality string, you should use
+FastqFile instead.
+
+### 1.5 ###
 
 Now accepts gzipped files. Huzzah!
 
-### 1.4.0 ###
+### 1.4 ###
 
 Added methods:
 
     Sequence.base_counts
 	Sequence.base_frequencies
 
-### 1.3.0 ###
+### 1.3 ###
 
 Add additional functionality to `each_record` method.
 
@@ -108,7 +121,7 @@ Then info will contain the following arrays
 	['fruits', ['pineapple', 'pear', 'peach']],
 	['veggies', ['peppers', 'parsnip', 'peas']]
 
-### 1.2.0 ###
+### 1.2 ###
 
 Added `mean_qual` method to the `Quality` class.
 
@@ -119,11 +132,11 @@ Dropped Ruby requirement to 1.9.3
 (Note, if you want to build the docs with yard and you're using
 Ruby 1.9.3, you may have to install the redcarpet gem.)
 
-### 1.1.0 ###
+### 1.1 ###
 
 Added: Fastq and Quality classes
 
-### 1.0.0 ###
+### 1.0 ###
 
 Added: Fasta and Sequence classes
 
@@ -135,16 +148,17 @@ Last version with File monkey patch.
 
 ## Benchmark ##
 
-Take these with a grain of salt since `BioRuby` is a big module
-module with lots of features and error checking, whereas `parse_fasta`
-is meant to be lightweight and easy to use for my own research.
+Perhaps this isn't exactly fair since `BioRuby` is a big module with
+lots of features and error checking, whereas `parse_fasta` is meant to
+be lightweight and easy to use for my own research. Oh well ;)
 
 ### FastaFile#each_record ###
 
-Just for fun, I wanted to compare the execution time to that of
-BioRuby. I calculated sequence length for each fasta record with both
-the `each_record` method from this gem and using the `FastaFormat`
-class from BioRuby. You can see the test script in `benchmark.rb`.
+You're probably wondering...How does it compare to BioRuby in some
+super accurate benchmarking tests? Lucky for you, I calculated
+sequence length for each fasta record with both the `each_record`
+method from this gem and using the `FastaFormat` class from
+BioRuby. You can see the test script in `benchmark.rb`.
 
 The test file contained 2,009,897 illumina reads and the file size
 was 1.1 gigabytes. Here are the results from Ruby's `Benchmark` class:
@@ -153,8 +167,7 @@ was 1.1 gigabytes. Here are the results from Ruby's `Benchmark` class:
     parse_fasta  64.530000   1.740000  66.270000 ( 67.081502)
     bioruby     116.250000   2.260000 118.510000 (120.223710)
 
-I just wanted a nice, clean way to parse fasta files, but being nearly
-twice as fasta as BioRuby doesn't hurt either!
+Hot dog! It's faster :)
 
 ### FastqFile#each_record ###
 
@@ -167,14 +180,11 @@ file containing 4,000,000 illumina reads.
 
 ### Sequence#gc ###
 
-I played around with a few different implementations for the `#gc`
-method and found this one to be the fastest.
-
-The test is done on random strings mating `/[AaCcTtGgUu]/`. `this_gc`
+The test is done on random strings matcing `/[AaCcTtGgUu]/`. `this_gc`
 is `Sequence.new(str).gc`, and `bioruby_gc` is
 `Bio::Sequence::NA.new(str).gc_content`.
 
-To see how the methods scale, the test 1 string was 2,000,000 bases,
+To see how the methods scales, the test 1 string was 2,000,000 bases,
 test 2 was 4,000,000 and test 3 was 8,000,000 bases.
 
                        user     system      total        real
@@ -189,7 +199,21 @@ test 2 was 4,000,000 and test 3 was 8,000,000 bases.
 
 Nice!
 
+Troll: "But Ryan, when will you find the GC of an 8,000,000 base
+sequence?"
+
+Me: "Step off, troll!"
+
+## Test suite & docs ##
+
+For a good time, you could clone this repo and run the test suite with
+rspec! Or if you just don't trust that it works like it should. The
+specs probably need a little clean up...so fork it and clean it up ;)
+
+Same with the docs. Clone the repo and build them yourself with `yard`
+if you're looking for a good time.
+
 ## Notes ##
 
-Currently in doesn't check whether your file is actually a fasta file
-or anything, so watch out.
+Only the `SeqFile` class actually checks to make sure that you passed
+in a "proper" fastA or fastQ file, so watch out.
