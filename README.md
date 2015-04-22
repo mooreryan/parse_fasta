@@ -1,6 +1,6 @@
 # parse_fasta #
 
-[![Gem Version](https://badge.fury.io/rb/parse_fasta.svg)](http://badge.fury.io/rb/parse_fasta) [![Coverage Status](https://coveralls.io/repos/mooreryan/parse_fasta/badge.svg)](https://coveralls.io/r/mooreryan/parse_fasta)
+[![Gem Version](https://badge.fury.io/rb/parse_fasta.svg)](http://badge.fury.io/rb/parse_fasta) [![Build Status](https://travis-ci.org/mooreryan/parse_fasta.svg?branch=master)](https://travis-ci.org/mooreryan/parse_fasta) [![Coverage Status](https://coveralls.io/repos/mooreryan/parse_fasta/badge.svg)](https://coveralls.io/r/mooreryan/parse_fasta)
 
 So you want to parse a fasta file...
 
@@ -211,7 +211,7 @@ rspec! Or if you just don't trust that it works like it should. The
 specs probably need a little clean up...so fork it and clean it up ;)
 
 Same with the docs. Clone the repo and build them yourself with `yard`
-if you're looking for a good time.
+if you are in need of some excitement.
 
 ## Notes ##
 
