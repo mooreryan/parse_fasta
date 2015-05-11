@@ -20,17 +20,9 @@ require 'spec_helper'
 
 describe FastaFile do
   describe "#each_record" do
-    let(:records) {
-      [["seq1 is fun", "AACTGGNNN"],
-       ["seq2", "AATCCTGNNN"],
-       ["seq3", "yyyyyyyyyyyyyyyNNN"]]
-    }
+    let(:records) { Helpers::RECORDS }
 
-    let(:truthy_records) {
-      [["seq1 is fun", ["AACTGGNNN"]],
-       ["seq2", ["AAT", "CCTGNNN"]],
-       ["seq3", ["yyyyyyyyyy", "yyyyy", "NNN"]]]
-    }
+    let(:truthy_records) { Helpers::TRUTHY_RECORDS }
     let(:f_handle) { FastaFile.open(@fname).each_record { |s| } }
 
     shared_examples_for "any FastaFile" do
@@ -61,7 +53,7 @@ describe FastaFile do
             expect(all_Sequences).to be true
           end
         end
-        
+
       end
     end
 
@@ -96,6 +88,5 @@ describe FastaFile do
         expect(f_handle).to be_an_instance_of FastaFile
       end
     end
-  end      
+  end
 end
-

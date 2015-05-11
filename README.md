@@ -71,6 +71,11 @@ want your scripts to accept either fastA or fastQ files.
 If you need the description and quality string, you should use
 FastqFile instead.
 
+#### 1.6.1 ####
+
+Better internal handling of empty sequences -- instead of raising
+errors, pass empty sequences.
+
 ### 1.5 ###
 
 Now accepts gzipped files. Huzzah!

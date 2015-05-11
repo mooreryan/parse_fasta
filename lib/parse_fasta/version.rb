@@ -17,5 +17,5 @@
 # along with parse_fasta.  If not, see <http://www.gnu.org/licenses/>.
 
 module ParseFasta
-  VERSION = "1.6.0"
+  VERSION = "1.6.1"
 end

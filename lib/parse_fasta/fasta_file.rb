@@ -33,13 +33,13 @@ class FastaFile < File
   #   FastaFile.open('reads.fna.gz').each_record do |header, sequence|
   #     puts [header, sequence.gc].join("\t")
   #   end
-  # 
+  #
   # @example Parsing a fasta file (with truthy value param)
   #   FastaFile.open('reads.fna').each_record(1) do |header, sequence|
   #     # header => 'sequence_1'
   #     # sequence => ['AACTG', 'AGTCGT', ... ]
   #   end
-  # 
+  #
   # @yield The header and sequence for each record in the fasta
   #   file to the block
   #
@@ -55,7 +55,7 @@ class FastaFile < File
       f = Zlib::GzipReader.open(self)
     rescue Zlib::GzipFile::Error => e
       f = self
-    end      
+    end
 
     if separate_lines
       f.each("\n>") do |line|
@@ -63,9 +63,9 @@ class FastaFile < File
         yield(header.strip, sequence)
       end
     else
-      f.each("\n>") do |line| 
+      f.each("\n>") do |line|
         header, sequence = parse_line(line)
-        yield(header.strip, Sequence.new(sequence))
+        yield(header.strip, Sequence.new(sequence || ""))
       end
     end
 
@@ -74,16 +74,22 @@ class FastaFile < File
   end
 
   private
+
   def parse_line(line)
-    line.chomp.split("\n", 2).map { |s| s.gsub(/\n|>/, '') }
+    line.split("\n", 2).map { |s| s.gsub(/\n|>/, '') }
   end
 
   def parse_line_separately(line)
-    header, sequence = 
-      line.chomp.split("\n", 2).map { |s| s.gsub(/>/, '') }
-    sequences = sequence.split("\n")
-      .reject { |s| s.empty? }
-      .map { |s| Sequence.new(s) }
+    header, sequence =
+      line.split("\n", 2).map { |s| s.gsub(/>/, '') }
+
+    if sequence.nil?
+      sequences = []
+    else
+      sequences = sequence.split("\n")
+        .reject { |s| s.empty? }
+        .map { |s| Sequence.new(s) }
+    end
 
     [header, sequences]
   end

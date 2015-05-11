@@ -20,15 +20,12 @@ require 'spec_helper'
 
 describe SeqFile do
   describe "#each_record" do
-    let(:records) {
-      [["seq1 is fun", "AACTGGNNN"],
-       ["seq2", "AATCCTGNNN"],
-       ["seq3", "yyyyyyyyyyyyyyyNNN"]]
-    }
 
     context "when input is a fasta file" do
+      let(:records) { Helpers::RECORDS }
+
       let(:f_handle) { SeqFile.open(@fname).each_record { |s| } }
-      
+
       shared_examples_for "parsing a fasta file" do
         it "yields proper header and sequence for each record" do
           expect { |b|
@@ -96,7 +93,7 @@ describe SeqFile do
         end
       end
     end
-    
+
     context "with a 4 line per record fastq file" do
       describe "#each_record" do
         context "with a gzipped file" do

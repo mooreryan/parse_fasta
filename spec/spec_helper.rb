@@ -21,3 +21,22 @@ Coveralls.wear!
 
 require 'parse_fasta'
 
+module Helpers
+
+  RECORDS = [["empty seq at beginning", ""],
+             ["seq1 is fun", "AACTGGNNN"],
+             ["seq2", "AATCCTGNNN"],
+             ["empty seq 1", ""],
+             ["empty seq 2", ""],
+             ["seq3", "yyyyyyyyyyyyyyyNNN"],
+             ["empty seq at end", ""]]
+
+  TRUTHY_RECORDS = [["empty seq at beginning", []],
+                    ["seq1 is fun", ["AACTGGNNN"]],
+                    ["seq2", ["AAT", "CCTGNNN"]],
+                    ["empty seq 1", []],
+                    ["empty seq 2", []],
+                    ["seq3", ["yyyyyyyyyy", "yyyyy", "NNN"]],
+                    ["empty seq at end", []]]
+
+end
