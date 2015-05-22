@@ -22,3 +22,12 @@ require 'parse_fasta/fastq_file'
 require 'parse_fasta/seq_file'
 require 'parse_fasta/sequence'
 require 'parse_fasta/quality'
+
+module ParseFasta
+  # Error raised when FASTA file is malformed
+  class DataFormatError < IOError
+    def message
+      "lalala"
+    end
+  end
+end

@@ -19,6 +19,31 @@
 require 'spec_helper'
 
 describe FastaFile do
+  describe "::open" do
+    context "when input is bogus" do
+      it "raises a ParseFasta::DataFormatError with message" do
+        fname = "#{File.dirname(__FILE__)}/../../test_files/bogus.txt"
+
+        expect { FastaFile.open(fname).each_record do |h, s|
+            puts [h, s].join ' '
+          end
+        }.to raise_error ParseFasta::DataFormatError
+      end
+    end
+
+    let(:fasta) { "#{File.dirname(__FILE__)}/../../test_files/test.fa" }
+
+    it "takes all the wacky args like IO.open" do
+      expect {
+        FastaFile.open(fasta, mode: 'r', cr_newline: true)
+      }.not_to raise_error
+    end
+
+    it "returns a FastaFile" do
+      expect(FastaFile.open(fasta)).to be_a FastaFile
+    end
+  end
+
   describe "#each_record" do
     let(:records) { Helpers::RECORDS }
 

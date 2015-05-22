@@ -27,7 +27,7 @@ lightweight than BioRuby. And more fun! ;)
 ## Documentation ##
 
 Checkout
-[parse_fasta docs](http://rubydoc.info/gems/parse_fasta/1.6.0/frames)
+[parse_fasta docs](http://rubydoc.info/gems/parse_fasta/1.6.2/frames)
 for the full api documentation.
 
 ## Usage ##
@@ -75,6 +75,11 @@ FastqFile instead.
 
 Better internal handling of empty sequences -- instead of raising
 errors, pass empty sequences.
+
+#### 1.6.2 ####
+
+`FastaFile::open` now raises a `ParseFasta::DataFormatError` when passed files
+that don't begin with a `>`.
 
 ### 1.5 ###
 

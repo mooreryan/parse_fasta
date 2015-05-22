@@ -22,6 +22,27 @@ require 'zlib'
 # files are no problem.
 class FastaFile < File
 
+  # Use it like IO::open
+  #
+  # @param fname [String] the name of the file to open
+  #
+  # @return [FastaFile] a FastaFile
+  def self.open(fname, *args)
+    begin
+      handle = Zlib::GzipReader.open(fname)
+    rescue Zlib::GzipFile::Error => e
+      handle = File.open(fname)
+    end
+
+    unless handle.each_char.peek[0] == '>'
+      raise ParseFasta::DataFormatError
+    end
+
+    handle.close
+
+    super
+  end
+
   # Analagous to IO#each_line, #each_record is used to go through a
   # fasta file record by record. It will accept gzipped files as well.
   #

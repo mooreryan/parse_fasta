@@ -131,17 +131,17 @@ describe SeqFile do
         end
       end
     end
-  end
 
-  context "when input is bogus" do
-    it "raises an ArgumentError with message" do
-      fname = "#{File.dirname(__FILE__)}/../../test_files/bogus.txt"
-      err_msg = "Input does not look like FASTA or FASTQ"
+    context "when input is bogus" do
+      it "raises an ArgumentError with message" do
+        fname = "#{File.dirname(__FILE__)}/../../test_files/bogus.txt"
+        err_msg = "Input does not look like FASTA or FASTQ"
 
-      expect { SeqFile.open(fname).each_record do |h, s|
-          puts [h, s].join ' '
-        end
-      }.to raise_error(ArgumentError, err_msg)
+        expect { SeqFile.open(fname).each_record do |h, s|
+            puts [h, s].join ' '
+          end
+        }.to raise_error(ArgumentError, err_msg)
+      end
     end
   end
 end
