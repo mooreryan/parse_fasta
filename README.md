@@ -60,11 +60,15 @@ What if you don't care if the input is a fastA or a fastQ? No problem!
 	  puts [header, seq].join "\t"
 	end
 
+Read fasta file into a hash.
+
+    seqs = FastaFile.open(ARGV[0]).to_hash
+
 ## Versions ##
 
 ### 1.7 ###
 
-Add `to_hash` methods.
+Add `FastaFile#to_hash` and `FastqFile#to_hash`.
 
 ### 1.6 ###
 

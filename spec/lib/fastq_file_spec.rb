@@ -43,9 +43,40 @@ describe FastqFile do
         expect(qual).to be_an_instance_of Quality
       end
     end
-
   end
-  
+
+  describe "#to_hash" do
+    let(:records) {
+      { "seq1" => { head: "seq1",
+                    seq: "AACCTTGG",
+                    desc: "",
+                    qual: ")#3gTqN8" },
+        "seq2 apples" => { head: "seq2 apples",
+                           seq: "ACTG",
+                           desc: "seq2 apples",
+                           qual: "*ujM" }
+      }
+    }
+    let(:fname) { "#{File.dirname(__FILE__)}/../../test_files/test.fq.gz" }
+    let(:fastq) { FastqFile.open(fname) }
+
+    it "reads the records into a hash: header as key and seq as val" do
+      expect(fastq.to_hash).to eq records
+    end
+
+    it "passes the seqs as Sequence objects" do
+      expect(
+        fastq.to_hash.values.all? { |val| val[:seq].instance_of? Sequence }
+      ).to eq true
+    end
+
+    it "passes the quals as Quality objects" do
+      expect(
+        fastq.to_hash.values.all? { |val| val[:qual].instance_of? Quality }
+      ).to eq true
+    end
+  end
+
   context "with a 4 line per record fastq file" do
     describe "#each_record" do
       context "with a gzipped file" do
@@ -80,6 +111,5 @@ describe FastqFile do
         end
       end
     end
-  end        
+  end
 end
-

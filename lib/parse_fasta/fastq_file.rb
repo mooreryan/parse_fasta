@@ -22,6 +22,25 @@ require 'zlib'
 # format files. Gzipped files are no problem.
 class FastqFile < File
 
+  # Returns the records in the fastq file as a hash map with the
+  # headers as keys pointing to a hash map like so
+  # { "seq1" => { head: "seq1", seq: "ACTG", desc: "", qual: "II3*"} }
+  #
+  # @example Read a fastQ into a hash table.
+  #   seqs = FastqFile.open('reads.fq.gz').to_hash
+  #
+  # @return [Hash] A hash with headers as keys, and a hash map as the
+  #   value with keys :head, :seq, :desc, :qual, for header, sequence,
+  #   description, and quality.
+  def to_hash
+    hash = {}
+    self.each_record do |head, seq, desc, qual|
+      hash[head] = { head: head, seq: seq, desc: desc, qual: qual }
+    end
+
+    hash
+  end
+
   # Analagous to IO#each_line, #each_record is used to go through a
   # fastq file record by record. It will accept gzipped files as well.
   #
@@ -33,7 +52,7 @@ class FastqFile < File
   #   FastqFile.open('reads.fq.gz').each_record do |head, seq, desc, qual|
   #     # do some fun stuff here!
   #   end
-  # 
+  #
   # @yield The header, sequence, description and quality string for
   #   each record in the fastq file to the block
   # @yieldparam header [String] The header of the fastq record without
@@ -54,8 +73,8 @@ class FastqFile < File
       f = Zlib::GzipReader.open(self)
     rescue Zlib::GzipFile::Error => e
       f = self
-    end      
-    
+    end
+
     f.each_line do |line|
       line.chomp!
 
@@ -70,10 +89,10 @@ class FastqFile < File
         quality = Quality.new(line)
         yield(header, sequence, description, quality)
       end
-      
+
       count += 1
     end
-    
+
     f.close if f.instance_of?(Zlib::GzipReader)
     return f
   end
