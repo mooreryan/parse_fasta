@@ -62,6 +62,10 @@ What if you don't care if the input is a fastA or a fastQ? No problem!
 
 ## Versions ##
 
+### 1.7 ###
+
+Add `to_hash` methods.
+
 ### 1.6 ###
 
 Added `SeqFile` class, which accepts either fastA or fastQ files. It

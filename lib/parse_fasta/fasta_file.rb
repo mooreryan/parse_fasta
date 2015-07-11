@@ -43,6 +43,23 @@ class FastaFile < File
     super
   end
 
+  # Returns the records in the fasta file as a hash map with the
+  # headers as keys and the Sequences as values.
+  #
+  # @example Read a fastA into a hash table.
+  #   seqs = FastaFile.open('reads.fa').to_hash
+  #
+  # @return [Hash] A hash with headers as keys, sequences as the
+  #   values (Sequence objects)
+  def to_hash
+    hash = {}
+    self.each_record do |head, seq|
+      hash[head] = seq
+    end
+
+    hash
+  end
+
   # Analagous to IO#each_line, #each_record is used to go through a
   # fasta file record by record. It will accept gzipped files as well.
   #

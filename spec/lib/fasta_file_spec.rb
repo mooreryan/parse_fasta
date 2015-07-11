@@ -44,6 +44,22 @@ describe FastaFile do
     end
   end
 
+  describe "#to_hash" do
+    let(:records) { Helpers::RECORDS_MAP }
+    let(:fname) { "#{File.dirname(__FILE__)}/../../test_files/test.fa.gz" }
+    let(:fasta) { FastaFile.open(fname) }
+
+    it "reads the records into a hash: header as key and seq as val" do
+      expect(fasta.to_hash).to eq records
+    end
+
+    it "passes the values as Sequence objects" do
+      expect(
+        fasta.to_hash.values.all? { |val| val.instance_of? Sequence }
+      ).to eq true
+    end
+  end
+
   describe "#each_record" do
     let(:records) { Helpers::RECORDS }
 
