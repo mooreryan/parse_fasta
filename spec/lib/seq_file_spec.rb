@@ -19,6 +19,57 @@
 require 'spec_helper'
 
 describe SeqFile do
+
+  describe "#to_hash" do
+    context "when input is a fasta file" do
+      let(:records) { Helpers::RECORDS_MAP }
+      let(:fname) { "#{File.dirname(__FILE__)}/../../test_files/test.fa.gz" }
+      let(:fasta) { SeqFile.open(fname) }
+
+      it "reads the records into a hash: header as key and seq as val" do
+        expect(fasta.to_hash).to eq records
+      end
+
+      it "passes the values as Sequence objects" do
+        expect(
+          fasta.to_hash.values.all? { |val| val.instance_of? Sequence }
+        ).to eq true
+      end
+    end
+
+    context "when input is a fastq file" do
+      let(:records) {
+        { "seq1" => { head: "seq1",
+                      seq: "AACCTTGG",
+                      desc: "",
+                      qual: ")#3gTqN8" },
+          "seq2 apples" => { head: "seq2 apples",
+                             seq: "ACTG",
+                             desc: "seq2 apples",
+                             qual: "*ujM" }
+        }
+      }
+      let(:fname) { "#{File.dirname(__FILE__)}/../../test_files/test.fq.gz" }
+      let(:fastq) { SeqFile.open(fname) }
+
+      it "reads the records into a hash: header as key and seq as val" do
+        expect(fastq.to_hash).to eq records
+      end
+
+      it "passes the seqs as Sequence objects" do
+        expect(
+          fastq.to_hash.values.all? { |val| val[:seq].instance_of? Sequence }
+        ).to eq true
+      end
+
+      it "passes the quals as Quality objects" do
+        expect(
+          fastq.to_hash.values.all? { |val| val[:qual].instance_of? Quality }
+        ).to eq true
+      end
+    end
+  end
+
   describe "#each_record" do
 
     context "when input is a fasta file" do
@@ -138,8 +189,8 @@ describe SeqFile do
         err_msg = "Input does not look like FASTA or FASTQ"
 
         expect { SeqFile.open(fname).each_record do |h, s|
-            puts [h, s].join ' '
-          end
+                   puts [h, s].join ' '
+                 end
         }.to raise_error(ArgumentError, err_msg)
       end
     end

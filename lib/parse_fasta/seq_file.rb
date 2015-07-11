@@ -20,6 +20,27 @@
 # depending on what the user provides. Handles, gzipped files.
 class SeqFile < File
 
+  # Returns the records in the sequence file as a hash map with the
+  # headers as keys and the Sequences as values. For a fastq file,
+  # acts the same as `FastaFile#to_hash`
+  #
+  # @example Read a fastA into a hash table.
+  #   seqs = SeqFile.open('reads.fa').to_hash
+  #
+  # @return [Hash] A hash with headers as keys, sequences as the
+  #   values (Sequence objects)
+  def to_hash
+    first_char = get_first_char(self)
+
+    if first_char == '>'
+      FastaFile.open(self).to_hash
+    elsif first_char == '@'
+      FastqFile.open(self).to_hash
+    else
+      raise ArgumentError, "Input does not look like FASTA or FASTQ"
+    end
+  end
+
   # Analagous to IO#each_line, #each_record will go through a fastA or
   # fastQ file record by record.
   #
@@ -54,7 +75,7 @@ class SeqFile < File
   # @yieldparam sequence [Sequence] The sequence of the record.
   def each_record
     first_char = get_first_char(self)
-    
+
     if first_char == '>'
       FastaFile.open(self).each_record do |header, sequence|
         yield(header, sequence)
@@ -65,7 +86,7 @@ class SeqFile < File
       end
     else
       raise ArgumentError, "Input does not look like FASTA or FASTQ"
-    end      
+    end
   end
 
   private
@@ -75,7 +96,7 @@ class SeqFile < File
       handle = Zlib::GzipReader.open(f)
     rescue Zlib::GzipFile::Error => e
       handle = f
-    end      
+    end
 
     handle.each_line.peek[0]
   end

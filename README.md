@@ -27,7 +27,7 @@ lightweight than BioRuby. And more fun! ;)
 ## Documentation ##
 
 Checkout
-[parse_fasta docs](http://rubydoc.info/gems/parse_fasta/1.6.2/frames)
+[parse_fasta docs](http://rubydoc.info/gems/parse_fasta/1.7.0/frames)
 for the full api documentation.
 
 ## Usage ##
@@ -68,7 +68,7 @@ Read fasta file into a hash.
 
 ### 1.7 ###
 
-Add `FastaFile#to_hash` and `FastqFile#to_hash`.
+Add `SeqFile#to_hash`, `FastaFile#to_hash` and `FastqFile#to_hash`.
 
 ### 1.6 ###
 
