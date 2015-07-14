@@ -27,7 +27,7 @@ module ParseFasta
   # Error raised when FASTA file is malformed
   class DataFormatError < IOError
     def message
-      "lalala"
+      "Data format error -- check input file"
     end
   end
 end
