@@ -27,7 +27,7 @@ lightweight than BioRuby. And more fun! ;)
 ## Documentation ##
 
 Checkout
-[parse_fasta docs](http://rubydoc.info/gems/parse_fasta/1.7.0/frames)
+[parse_fasta docs](http://rubydoc.info/gems/parse_fasta/1.7.2/frames)
 for the full api documentation.
 
 ## Usage ##
@@ -69,6 +69,16 @@ Read fasta file into a hash.
 ### 1.7 ###
 
 Add `SeqFile#to_hash`, `FastaFile#to_hash` and `FastqFile#to_hash`.
+
+#### 1.7.2 ####
+
+Strip spaces (not all whitespace) from `Sequence` and `Quality` strings.
+
+Some alignment fastas have spaces for easier reading. Strip these
+out. For consistency, also strips spaces from `Quality` strings. If
+there are spaces that don't match in the quality and sequence in a
+fastQ file, then things will get messed up in the FastQ file. FastQ
+shouldn't have spaces though.
 
 ### 1.6 ###
 

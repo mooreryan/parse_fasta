@@ -21,8 +21,16 @@ require 'bio'
 
 describe Quality do
   let(:qual_string) { qual_string = Quality.new('ab%63:K') }
-  let(:bioruby_qual_scores) do 
+  let(:bioruby_qual_scores) do
     Bio::Fastq.new("@seq1\nACTGACT\n+\n#{qual_string}").quality_scores
+  end
+
+  describe "::new" do
+    it "removes any spaces in the quality string" do
+      q = "   ab #   :m, !    "
+      q_no_spaces = "ab#:m,!"
+      expect(Quality.new(q)).to eq q_no_spaces
+    end
   end
 
   describe "#qual_scores" do
@@ -39,5 +47,5 @@ describe Quality do
       mean_quality = qual_string.qual_scores.reduce(:+) / len
       expect(qual_string.mean_qual).to eq mean_quality
     end
-  end             
+  end
 end

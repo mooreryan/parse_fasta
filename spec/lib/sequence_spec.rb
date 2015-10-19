@@ -25,6 +25,14 @@ describe Sequence do
     expect(Sequence.new('ACTG')).to be_a String
   end
 
+  describe "::new" do
+    it "removes any spaces in the sequence" do
+      s = "ACT ACT ACT    GCT  "
+      s_no_spaces = "ACTACTACTGCT"
+      expect(Sequence.new(s)).to eq s_no_spaces
+    end
+  end
+
   describe "#gc" do
     it "gives the same answer as BioRuby" do
       s = 'ACtgcGAtcgCgAaTtGgCcnNuU'
@@ -75,7 +83,7 @@ describe Sequence do
         expect(s.base_counts).to eq({ a: 2, c: 2, u: 2, g: 2 })
       end
     end
-    
+
     context "for an RNA sequence with truthy argument" do
       it "returns a map of A, C, U, G and N counts" do
         s = Sequence.new('ACUGNacugn')

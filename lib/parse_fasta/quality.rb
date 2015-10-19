@@ -19,6 +19,17 @@
 # Provide some methods for dealing with common tasks regarding
 # quality strings.
 class Quality < String
+
+  # Strips whitespace from the str argument before calling super
+  #
+  # @return [Quality] A Quality string
+  #
+  # @example Removes whitespace
+  #   Quality.new "I I 2 ! " #=> "II2!"
+  def initialize(str)
+    super(str.gsub(/ +/, ""))
+  end
+
   # Returns the mean quality for the record. This will be a good deal
   # faster than getting the average with `qual_scores` and reduce.
   #

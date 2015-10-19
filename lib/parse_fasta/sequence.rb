@@ -20,6 +20,16 @@
 # nucleotide sequences.
 class Sequence < String
 
+  # Strips whitespace from the str argument before calling super
+  #
+  # @return [Sequence] A Sequence string
+  #
+  # @example Removes whitespace
+  #   Sequence.new "AA CC TT" #=> "AACCTT"
+  def initialize(str)
+    super(str.gsub(/ +/, ""))
+  end
+
   # Calculates GC content
   #
   # Calculates GC content by dividing count of G + C divided by count
@@ -45,7 +55,7 @@ class Sequence < String
     t = s.count('t')
     a = s.count('a')
     u = s.count('u')
-    
+
     return 0 if c + g + t + a + u == 0
     return (c + g) / (c + g + t + a + u).to_f
   end
@@ -87,9 +97,9 @@ class Sequence < String
       warn('ERROR: A sequence contains both T and U')
       counts[:t], counts[:u] = t, u
     end
-    
+
     counts[:n] = s.count('n') if count_ambiguous_bases
-    
+
     counts
   end
 
@@ -116,7 +126,7 @@ class Sequence < String
   def base_frequencies(count_ambiguous_bases=nil)
     base_counts = self.base_counts(count_ambiguous_bases)
     total_bases = base_counts.values.reduce(:+).to_f
-    base_freqs = 
+    base_freqs =
       base_counts.map { |base, count| [base, count/total_bases] }.flatten
     Hash[*base_freqs]
   end
