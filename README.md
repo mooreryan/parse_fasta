@@ -27,7 +27,7 @@ lightweight than BioRuby. And more fun! ;)
 ## Documentation ##
 
 Checkout
-[parse_fasta docs](http://rubydoc.info/gems/parse_fasta/1.7.2/frames)
+[parse_fasta docs](http://rubydoc.info/gems/parse_fasta/1.8.0/frames)
 for the full api documentation.
 
 ## Usage ##
@@ -65,6 +65,13 @@ Read fasta file into a hash.
     seqs = FastaFile.open(ARGV[0]).to_hash
 
 ## Versions ##
+
+### 1.8 ###
+
+Add `Sequence#rev_comp`. It can handle IUPAC characters. Since
+`parse_fasta` doesn't check whether the seq is AA or NA, if called on
+an amino acid string, things will get weird as it will complement the
+IUPAC characters in the AA string and leave others.
 
 ### 1.7 ###
 

@@ -140,7 +140,7 @@ class Sequence < String
     Hash[*base_freqs]
   end
 
-  # Retruns a reverse complement of self
+  # Returns a reverse complement of self
   #
   # @return [Sequence] a Sequence that is the reverse complement of
   #   self
