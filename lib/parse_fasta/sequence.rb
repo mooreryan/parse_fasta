@@ -20,6 +20,15 @@
 # nucleotide sequences.
 class Sequence < String
 
+  # # Error raised if both T and U are present
+  # #
+  # # @note This is NOT checked on every call to Sequence.new
+  # class AmbiguousSequenceError < StandardError
+  #   def message
+  #     "Sequence is ambiguous -- both T and U present"
+  #   end
+  # end
+
   # Strips whitespace from the str argument before calling super
   #
   # @return [Sequence] A Sequence string
@@ -129,5 +138,31 @@ class Sequence < String
     base_freqs =
       base_counts.map { |base, count| [base, count/total_bases] }.flatten
     Hash[*base_freqs]
+  end
+
+  # Retruns a reverse complement of self
+  #
+  # @return [Sequence] a Sequence that is the reverse complement of
+  #   self
+  #
+  # @example Hanldes any IUPAC character and capitalization properly
+  #   Sequence.new("gARKbdctymvhu").rev_comp #=> "adbkraghvMYTc"
+  #
+  # @example Leaves non IUPAC characters
+  #   Sequence.new("cccc--CCCcccga").rev_comp #=> "tcgggGGG--gggg""
+  #
+  # @note If Sequence contains non-IUPAC characters, these are not
+  #   complemented
+  def rev_comp
+    # if self.match(/T/i) && self.match(/U/i)
+    #   raise Sequence::AmbiguousSequenceError
+    # end
+
+    # if self.match(/[^ATUGCYRSWKMBDHVN]/i)
+    #   warn "WARNING: Sequence contains non IUPAC characters"
+    # end
+
+    self.reverse.tr("ATUGCYRSWKMBDHVNatugcyrswkmbdhvn",
+                    "TAACGRYSWMKVHDBNtaacgryswmkvhdbn")
   end
 end

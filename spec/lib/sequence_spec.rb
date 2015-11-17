@@ -21,6 +21,10 @@ require 'bio'
 
 describe Sequence do
 
+  # it "has AmbiguousSequenceError" do
+  #   expect(Sequence::AmbiguousSequenceError).not_to be nil
+  # end
+
   it "inherits from String" do
     expect(Sequence.new('ACTG')).to be_a String
   end
@@ -125,6 +129,51 @@ describe Sequence do
         s = Sequence.new('ACTTn')
         base_freqs = { a: 0.2, c: 0.2, t: 0.4, g: 0.0, n: 0.2 }
         expect(s.base_frequencies(1)).to eq(base_freqs)
+      end
+    end
+  end
+
+  describe "#rev_comp" do
+    # it "raises error if both T and U are present" do
+    #   s = Sequence.new("actGU")
+    #   err = Sequence::AmbiguousSequenceError
+    #   msg = "Sequence is ambiguous -- both T and U present"
+    #   expect { s.rev_comp }.to raise_error(err, msg)
+    # end
+
+    # it "warns if non iupac characters are present" do
+    #   s = Sequence.new("--..9284ldkjfalsjf")
+    #   msg = "WARNING: Sequence contains non IUPAC characters"
+    #   expect(s).to receive(:warn).with(msg)
+    #   s.rev_comp
+    # end
+    it "returns a reverse complement of the Sequence" do
+      s = Sequence.new("gARKbdctymvhu").rev_comp
+      expect(s).to eq "adbkraghvMYTc"
+
+      s = Sequence.new("ctyMVhgarKBda").rev_comp
+      expect(s).to eq "thVMytcdBKrag"
+    end
+
+    it "leaves non-IUPAC characters alone" do
+      s = Sequence.new("cccc--CCCcccga").rev_comp
+      expect(s).to eq "tcgggGGG--gggg"
+    end
+
+    it "returns a Sequence" do
+      s = Sequence.new("cccc--CCCcccga")
+      expect(s.rev_comp).to be_an_instance_of(Sequence)
+    end
+
+    it "gives back original sequence when called in succession" do
+      s = Sequence.new("cccc--CCCcccga")
+      expect(s.rev_comp.rev_comp).to eq s
+    end
+
+    context "with an empty sequence" do
+      it "returns an empty sequence" do
+        s = Sequence.new("")
+        expect(s.rev_comp).to be_empty
       end
     end
   end
