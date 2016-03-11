@@ -29,6 +29,9 @@ class SeqFile < File
   #
   # @return [Hash] A hash with headers as keys, sequences as the
   #   values (Sequence objects)
+  #
+  # @raise [ParseFasta::SequenceFormatError] if sequence has a '>',
+  #   and file is a fastA file
   def to_hash
     first_char = get_first_char(self)
 
@@ -73,6 +76,9 @@ class SeqFile < File
   #   leading '>' or '@'
   #
   # @yieldparam sequence [Sequence] The sequence of the record.
+  #
+  # @raise [ParseFasta::SequenceFormatError] if sequence has a '>',
+  #   and file is a fastA file
   def each_record
     first_char = get_first_char(self)
 

@@ -27,7 +27,7 @@ lightweight than BioRuby. And more fun! ;)
 ## Documentation ##
 
 Checkout
-[parse_fasta docs](http://rubydoc.info/gems/parse_fasta/1.8.0/frames)
+[parse_fasta docs](http://rubydoc.info/gems/parse_fasta)
 for the full api documentation.
 
 ## Usage ##
@@ -72,6 +72,27 @@ Add `Sequence#rev_comp`. It can handle IUPAC characters. Since
 `parse_fasta` doesn't check whether the seq is AA or NA, if called on
 an amino acid string, things will get weird as it will complement the
 IUPAC characters in the AA string and leave others.
+
+#### 1.8.1 ####
+
+An error will be raised if a fasta file has a `>` in the
+sequence. Sometimes files are not terminated with a newline
+character. If this is the case, then catting two fasta files will
+smush the first header of the second file right in with the last
+sequence of the first file. This is bad, raise an error! ;)
+
+Example
+
+    >seq1
+    ACTG>seq2
+    ACTG
+    >seq3
+    ACTG
+
+This will raise `ParseFasta::SequenceFormatError`.
+
+Also, headers with lots of `>` within are fine now.
+
 
 ### 1.7 ###
 

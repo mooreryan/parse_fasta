@@ -24,10 +24,17 @@ require 'parse_fasta/sequence'
 require 'parse_fasta/quality'
 
 module ParseFasta
+
+  class Error < StandardError
+  end
+
   # Error raised when FASTA file is malformed
   class DataFormatError < IOError
     def message
       "Data format error -- check input file"
     end
+  end
+
+  class SequenceFormatError < Error
   end
 end

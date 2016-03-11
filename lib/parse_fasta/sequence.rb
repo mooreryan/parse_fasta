@@ -35,7 +35,13 @@ class Sequence < String
   #
   # @example Removes whitespace
   #   Sequence.new "AA CC TT" #=> "AACCTT"
+  #
+  # @raise [ParseFasta::SequenceFormatError] if sequence has a '>'
   def initialize(str)
+    if str.match(/>/)
+      raise ParseFasta::SequenceFormatError
+    end
+
     super(str.gsub(/ +/, ""))
   end
 

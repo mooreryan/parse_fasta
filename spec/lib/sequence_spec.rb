@@ -35,6 +35,14 @@ describe Sequence do
       s_no_spaces = "ACTACTACTGCT"
       expect(Sequence.new(s)).to eq s_no_spaces
     end
+
+    context "when sequence has a '>' in it" do
+      it "raises SequenceFormatError" do
+        s = "actg>sequence 3"
+        expect { Sequence.new(s) }.
+          to raise_error ParseFasta::SequenceFormatError
+      end
+    end
   end
 
   describe "#gc" do

@@ -29,6 +29,7 @@ module Helpers
              ["empty seq 1", ""],
              ["empty seq 2", ""],
              ["seq3", "yyyyyyyyyyyyyyyNNN"],
+             ["seq 4 > has many '>' in header", "ACTGactg"],
              ["empty seq at end", ""]]
 
   RECORDS_MAP = {
@@ -38,9 +39,9 @@ module Helpers
     "empty seq 1" => "",
     "empty seq 2" => "",
     "seq3" => "yyyyyyyyyyyyyyyNNN",
+    "seq 4 > has many '>' in header" => "ACTGactg",
     "empty seq at end" => ""
   }
-
 
   TRUTHY_RECORDS = [["empty seq at beginning", []],
                     ["seq1 is fun", ["AACTGGNNN"]],
@@ -48,6 +49,8 @@ module Helpers
                     ["empty seq 1", []],
                     ["empty seq 2", []],
                     ["seq3", ["yyyyyyyyyy", "yyyyy", "NNN"]],
+                    ["seq 4 > has many '>' in header", ["ACTG" ,
+                                                        "actg"]],
                     ["empty seq at end", []]]
 
 end

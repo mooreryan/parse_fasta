@@ -51,6 +51,8 @@ class FastaFile < File
   #
   # @return [Hash] A hash with headers as keys, sequences as the
   #   values (Sequence objects)
+  #
+  # @raise [ParseFasta::SequenceFormatError] if sequence has a '>'
   def to_hash
     hash = {}
     self.each_record do |head, seq|
@@ -88,6 +90,8 @@ class FastaFile < File
   #   fasta record. If `separate_lines` is falsy (the default
   #   behavior), will be Sequence, but if truthy will be
   #   Array<String>.
+  #
+  # @raise [ParseFasta::SequenceFormatError] if sequence has a '>'
   def each_record(separate_lines=nil)
     begin
       f = Zlib::GzipReader.open(self)
@@ -100,11 +104,33 @@ class FastaFile < File
         header, sequence = parse_line_separately(line)
         yield(header.strip, sequence)
       end
+
+      # f.each_with_index(">") do |line, idx|
+      #   if idx.zero?
+      #     if line != ">"
+      #       raise ParseFasta::DataFormatError
+      #     end
+      #   else
+      #     header, sequence = parse_line_separately(line)
+      #     yield(header.strip, sequence)
+      #   end
+      # end
     else
       f.each("\n>") do |line|
         header, sequence = parse_line(line)
         yield(header.strip, Sequence.new(sequence || ""))
       end
+
+      # f.each_with_index(sep=/^>/) do |line, idx|
+      #   if idx.zero?
+      #     if line != ">"
+      #       raise ParseFasta::DataFormatError
+      #     end
+      #   else
+      #     header, sequence = parse_line(line)
+      #     yield(header.strip, Sequence.new(sequence || ""))
+      #   end
+      # end
     end
 
     f.close if f.instance_of?(Zlib::GzipReader)
@@ -114,12 +140,12 @@ class FastaFile < File
   private
 
   def parse_line(line)
-    line.split("\n", 2).map { |s| s.gsub(/\n|>/, '') }
+    line.split("\n", 2).map { |s| s.gsub(/\n|^>|>$/, '') }
   end
 
   def parse_line_separately(line)
     header, sequence =
-      line.split("\n", 2).map { |s| s.gsub(/>/, '') }
+      line.split("\n", 2).map { |s| s.gsub(/^>|>$/, '') }
 
     if sequence.nil?
       sequences = []

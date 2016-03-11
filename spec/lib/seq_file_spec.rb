@@ -26,6 +26,15 @@ describe SeqFile do
       let(:fname) { "#{File.dirname(__FILE__)}/../../test_files/test.fa.gz" }
       let(:fasta) { SeqFile.open(fname) }
 
+      context "with badly catted fasta" do
+        it "raises ParseFasta::SequenceFormatError" do
+          fname = "#{File.dirname(__FILE__)}/../../test_files/bad.fa"
+
+          expect { FastaFile.open(fname).to_hash }.
+            to raise_error ParseFasta::SequenceFormatError
+        end
+      end
+
       it "reads the records into a hash: header as key and seq as val" do
         expect(fasta.to_hash).to eq records
       end
@@ -76,6 +85,15 @@ describe SeqFile do
       let(:records) { Helpers::RECORDS }
 
       let(:f_handle) { SeqFile.open(@fname).each_record { |s| } }
+
+      context "with badly catted fasta" do
+        it "raises ParseFasta::SequenceFormatError" do
+          fname = "#{File.dirname(__FILE__)}/../../test_files/bad.fa"
+
+          expect { FastaFile.open(fname).to_hash }.
+            to raise_error ParseFasta::SequenceFormatError
+        end
+      end
 
       shared_examples_for "parsing a fasta file" do
         it "yields proper header and sequence for each record" do

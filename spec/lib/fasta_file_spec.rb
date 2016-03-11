@@ -49,6 +49,15 @@ describe FastaFile do
     let(:fname) { "#{File.dirname(__FILE__)}/../../test_files/test.fa.gz" }
     let(:fasta) { FastaFile.open(fname) }
 
+    context "with badly catted fasta" do
+      it "raises ParseFasta::SequenceFormatError" do
+        fname = "#{File.dirname(__FILE__)}/../../test_files/bad.fa"
+
+        expect { FastaFile.open(fname).to_hash }.
+          to raise_error ParseFasta::SequenceFormatError
+      end
+    end
+
     it "reads the records into a hash: header as key and seq as val" do
       expect(fasta.to_hash).to eq records
     end
@@ -65,6 +74,15 @@ describe FastaFile do
 
     let(:truthy_records) { Helpers::TRUTHY_RECORDS }
     let(:f_handle) { FastaFile.open(@fname).each_record { |s| } }
+
+    context "with badly catted fasta" do
+      it "raises ParseFasta::SequenceFormatError" do
+        fname = "#{File.dirname(__FILE__)}/../../test_files/bad.fa"
+
+        expect { FastaFile.open(fname).each_record {} }.
+          to raise_error ParseFasta::SequenceFormatError
+      end
+    end
 
     shared_examples_for "any FastaFile" do
       context "with no arguments" do
