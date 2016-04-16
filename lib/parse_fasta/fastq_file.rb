@@ -96,4 +96,39 @@ class FastqFile < File
     f.close if f.instance_of?(Zlib::GzipReader)
     return f
   end
+
+  def each_record_fast
+    count = 0
+    header = ''
+    sequence = ''
+    description = ''
+    quality = ''
+
+    begin
+      f = Zlib::GzipReader.open(self)
+    rescue Zlib::GzipFile::Error => e
+      f = self
+    end
+
+    f.each_line do |line|
+      line.chomp!
+
+      case count % 4
+      when 0
+        header = line[1..-1]
+      when 1
+        sequence = line
+      when 2
+        description = line[1..-1]
+      when 3
+        quality = line
+        yield(header, sequence, description, quality)
+      end
+
+      count += 1
+    end
+
+    f.close if f.instance_of?(Zlib::GzipReader)
+    return f
+  end
 end

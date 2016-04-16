@@ -21,7 +21,14 @@ require 'spec_helper'
 describe FastqFile do
   let(:records) {
     [["seq1", "AACCTTGG", "", ")#3gTqN8"],
-     ["seq2 apples", "ACTG", "seq2 apples", "*ujM"]] }
+     ["seq2 apples", "ACTG", "seq2 apples", "*ujM"]]
+  }
+
+  let(:records_fast) {
+    [["seq1", "AA CC TT GG", "", ")# 3g Tq N8"],
+     ["seq2 apples", "ACTG", "seq2 apples", "*ujM"]]
+  }
+
   let(:f_handle) { FastqFile.open(@fname).each_record { |s| } }
 
 
@@ -41,6 +48,27 @@ describe FastqFile do
     it "yields the quality as a Quality class" do
       FastqFile.open(@fname).each_record do |_, _, _, qual|
         expect(qual).to be_an_instance_of Quality
+      end
+    end
+  end
+
+  describe "#each_record_fast" do
+    before(:each) do
+      @fname = "#{File.dirname(__FILE__)}/../../test_files/test.fq.gz"
+    end
+
+    it "yields proper header, sequence, description, and quality" do
+      expect { |b|
+        FastqFile.open(@fname).each_record_fast(&b)
+      }.to yield_successive_args(records_fast[0], records_fast[1])
+    end
+
+    it "yields all params as String" do
+      FastqFile.open(@fname).each_record_fast do |h, s, d, q|
+        expect(h).to be_an_instance_of String
+        expect(s).to be_an_instance_of String
+        expect(d).to be_an_instance_of String
+        expect(q).to be_an_instance_of String
       end
     end
   end
