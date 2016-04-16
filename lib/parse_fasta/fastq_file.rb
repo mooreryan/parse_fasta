@@ -80,11 +80,11 @@ class FastqFile < File
 
       case count % 4
       when 0
-        header = line.sub(/^@/, '')
+        header = line[1..-1]
       when 1
         sequence = Sequence.new(line)
       when 2
-        description = line.sub(/^\+/, '')
+        description = line[1..-1]
       when 3
         quality = Quality.new(line)
         yield(header, sequence, description, quality)
