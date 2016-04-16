@@ -148,4 +148,65 @@ describe FastaFile do
       end
     end
   end
+
+  describe "#each_record_fast" do
+    let(:records) { Helpers::RECORDS_FAST }
+
+    let(:f_handle) { FastaFile.open(@fname).each_record_fast { |s| } }
+
+    context "with badly catted fasta" do
+      it "raises ParseFasta::SequenceFormatError" do
+        fname = "#{File.dirname(__FILE__)}/../../test_files/bad.fa"
+
+        expect { FastaFile.open(fname).each_record_fast {} }.
+          to raise_error ParseFasta::SequenceFormatError
+      end
+    end
+
+    shared_examples_for "any FastaFile" do
+      it "yields proper header and sequence for each record" do
+        expect { |b|
+          FastaFile.open(@fname).each_record_fast(&b)
+        }.to yield_successive_args(*records)
+      end
+
+      it "yields the sequence as a String class" do
+        FastaFile.open(@fname).each_record_fast do |_, seq|
+          expect(seq).to be_an_instance_of String
+        end
+      end
+    end
+
+    context "with a gzipped file" do
+      before(:each) do
+        @fname = "#{File.dirname(__FILE__)}/../../test_files/test.fa.gz"
+      end
+
+      it_behaves_like "any FastaFile"
+
+      it "closes the GzipReader" do
+        expect(f_handle).to be_closed
+      end
+
+      it "returns GzipReader object" do
+        expect(f_handle).to be_an_instance_of Zlib::GzipReader
+      end
+    end
+
+    context "with a non-gzipped file" do
+      before(:each) do
+        @fname = "#{File.dirname(__FILE__)}/../../test_files/test.fa"
+      end
+
+      it_behaves_like "any FastaFile"
+
+      it "doesn't close the FastqFile (approx regular file behavior)" do
+        expect(f_handle).not_to be_closed
+      end
+
+      it "returns FastaFile object" do
+        expect(f_handle).to be_an_instance_of FastaFile
+      end
+    end
+  end
 end

@@ -66,6 +66,15 @@ Read fasta file into a hash.
 
 ## Versions ##
 
+### 1.9.0 ###
+
+Added "fast" versions of `each_record` methods
+(`each_record_fast`). Basically, they return sequences and quality
+strings as Ruby `Sring` objects instead of aa `Sequence` or `Quality`
+objects. Also, if the sequence or quality string has spaces, they will
+be retained. If this is a problem, use the original `each_record`
+methods.
+
 ### 1.8.2 ###
 
 Speed up `FastqFile#each_record`.

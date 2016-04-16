@@ -137,6 +137,42 @@ class FastaFile < File
     return f
   end
 
+  # Fast version of #each_record
+  #
+  # Yields the sequence as a String, not Sequence. No separate lines
+  # option.
+  #
+  # @note If the fastA file has spaces in the sequence, they will be
+  #   retained. If this is a problem, use #each_record instead.
+  #
+  # @yield The header and sequence for each record in the fasta
+  #   file to the block
+  #
+  # @yieldparam header [String] The header of the fasta record without
+  #   the leading '>'
+  #
+  # @yieldparam sequence [String] The sequence of the fasta record
+  #
+  # @raise [ParseFasta::SequenceFormatError] if sequence has a '>'
+  def each_record_fast
+    begin
+      f = Zlib::GzipReader.open(self)
+    rescue Zlib::GzipFile::Error => e
+      f = self
+    end
+
+    f.each("\n>") do |line|
+      header, sequence = parse_line(line)
+
+      raise ParseFasta::SequenceFormatError if sequence.include? ">"
+
+      yield(header.strip, sequence)
+    end
+
+    f.close if f.instance_of?(Zlib::GzipReader)
+    return f
+  end
+
   private
 
   def parse_line(line)

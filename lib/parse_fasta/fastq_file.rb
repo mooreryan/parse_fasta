@@ -97,6 +97,30 @@ class FastqFile < File
     return f
   end
 
+  # Fast version of #each_record
+  #
+  # @note If the fastQ file has spaces in the sequence, they will be
+  #   retained. If this is a problem, use #each_record instead.
+  #
+  # @example Parsing a fastq file
+  #   FastqFile.open('reads.fq').each_record_fast do |head, seq, desc, qual|
+  #     # do some fun stuff here!
+  #   end
+  # @example Use the same syntax for gzipped files!
+  #   FastqFile.open('reads.fq.gz').each_record_fast do |head, seq, desc, qual|
+  #     # do some fun stuff here!
+  #   end
+  #
+  # @yield The header, sequence, description and quality string for
+  #   each record in the fastq file to the block
+  #
+  # @yieldparam header [String] The header of the fastq record without
+  #   the leading '@'
+  # @yieldparam sequence [String] The sequence of the fastq record
+  # @yieldparam description [String] The description line of the fastq
+  #   record without the leading '+'
+  # @yieldparam quality_string [String] The quality string of the
+  #   fastq record
   def each_record_fast
     count = 0
     header = ''

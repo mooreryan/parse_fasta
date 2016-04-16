@@ -79,9 +79,8 @@ describe SeqFile do
     end
   end
 
-  describe "#each_record" do
-
-    context "when input is a fasta file" do
+  context "when input is a fasta file" do
+    describe "#each_record" do
       let(:records) { Helpers::RECORDS }
 
       let(:f_handle) { SeqFile.open(@fname).each_record { |s| } }
@@ -200,8 +199,10 @@ describe SeqFile do
         end
       end
     end
+  end
 
-    context "when input is bogus" do
+  context "when input is bogus" do
+    describe "#each_record" do
       it "raises an ArgumentError with message" do
         fname = "#{File.dirname(__FILE__)}/../../test_files/bogus.txt"
         err_msg = "Input does not look like FASTA or FASTQ"
@@ -213,4 +214,144 @@ describe SeqFile do
       end
     end
   end
+
+  #####
+
+  context "when input is a fasta file" do
+    describe "#each_record_fast" do
+      let(:records) { Helpers::RECORDS_FAST }
+
+      let(:f_handle) { SeqFile.open(@fname).each_record_fast { |s| } }
+
+      context "with badly catted fasta" do
+        it "raises ParseFasta::SequenceFormatError" do
+          fname = "#{File.dirname(__FILE__)}/../../test_files/bad.fa"
+
+          expect { FastaFile.open(fname).to_hash }.
+            to raise_error ParseFasta::SequenceFormatError
+        end
+      end
+
+      shared_examples_for "parsing a fasta file" do
+        it "yields proper header and sequence for each record" do
+          expect { |b|
+            SeqFile.open(@fname).each_record_fast(&b)
+          }.to yield_successive_args(*records)
+        end
+
+        it "yields the sequence as a String class" do
+          SeqFile.open(@fname).each_record_fast do |_, seq|
+            expect(seq).to be_an_instance_of String
+          end
+        end
+      end
+
+      context "with a gzipped file" do
+        before(:each) do
+          @fname = "#{File.dirname(__FILE__)}/../../test_files/test.fa.gz"
+        end
+
+        it_behaves_like "parsing a fasta file"
+
+        it "closes the GzipReader" do
+          expect(f_handle).to be_closed
+        end
+
+        it "returns GzipReader object" do
+          expect(f_handle).to be_an_instance_of Zlib::GzipReader
+        end
+      end
+
+      context "with a non-gzipped file" do
+        before(:each) do
+          @fname = "#{File.dirname(__FILE__)}/../../test_files/test.fa"
+        end
+
+        it_behaves_like "parsing a fasta file"
+
+        it "doesn't close the File (approx regular file behavior)" do
+          expect(f_handle).not_to be_closed
+        end
+
+        it "returns FastaFile object" do
+          expect(f_handle).to be_a FastaFile
+        end
+      end
+    end
+  end
+
+  context "when input is a fastq file" do
+    let(:records) {
+      [["seq1", "AA CC TT GG"],
+       ["seq2 apples", "ACTG"]] }
+    let(:f_handle) { SeqFile.open(@fname).each_record_fast { |s| } }
+
+    shared_examples_for "parsing a fastq file" do
+      it "yields only header & sequence" do
+        expect { |b|
+          SeqFile.open(@fname).each_record_fast(&b)
+        }.to yield_successive_args(records[0], records[1])
+      end
+
+      it "yields the sequence as a String class" do
+        SeqFile.open(@fname).each_record_fast do |_, seq, _, _|
+          expect(seq).to be_an_instance_of String
+        end
+      end
+    end
+
+    context "with a 4 line per record fastq file" do
+      describe "#each_record_fast" do
+        context "with a gzipped file" do
+          before(:each) do
+            @fname =
+              "#{File.dirname(__FILE__)}/../../test_files/test.fq.gz"
+          end
+
+          it_behaves_like "parsing a fastq file"
+
+          it "closes the GzipReader" do
+            expect(f_handle).to be_closed
+          end
+
+          it "returns GzipReader object" do
+            expect(f_handle).to be_an_instance_of Zlib::GzipReader
+          end
+        end
+
+        context "with a non-gzipped file" do
+          before(:each) do
+            @fname =
+              "#{File.dirname(__FILE__)}/../../test_files/test.fq"
+          end
+
+          it_behaves_like "parsing a fastq file"
+
+          it "doesn't close the SeqFile (approx reg file behav)" do
+            expect(f_handle).not_to be_closed
+          end
+
+          it "returns FastqFile object" do
+            expect(f_handle).to be_a FastqFile
+          end
+        end
+      end
+    end
+  end
+
+  context "when input is bogus" do
+    describe "#each_record_fast" do
+      it "raises an ArgumentError with message" do
+        fname = "#{File.dirname(__FILE__)}/../../test_files/bogus.txt"
+        err_msg = "Input does not look like FASTA or FASTQ"
+
+        expect { SeqFile.open(fname).each_record_fast do |h, s|
+                   puts [h, s].join ' '
+                 end
+        }.to raise_error(ArgumentError, err_msg)
+      end
+    end
+  end
+
+
 end

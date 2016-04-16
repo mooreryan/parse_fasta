@@ -32,6 +32,15 @@ module Helpers
              ["seq 4 > has many '>' in header", "ACTGactg"],
              ["empty seq at end", ""]]
 
+  RECORDS_FAST = [["empty seq at beginning", ""],
+                  ["seq1 is fun", "AAC TGG NN N"],
+                  ["seq2", "AATCCTGNNN"],
+                  ["empty seq 1", ""],
+                  ["empty seq 2", ""],
+                  ["seq3", "yyyyyyyyyyyyyyyNNN"],
+                  ["seq 4 > has many '>' in header", "ACTGactg"],
+                  ["empty seq at end", ""]]
+
   RECORDS_MAP = {
     "empty seq at beginning" => "",
     "seq1 is fun" => "AACTGGNNN",

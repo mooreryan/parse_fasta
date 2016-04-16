@@ -95,6 +95,44 @@ class SeqFile < File
     end
   end
 
+  # Fast version of #each_record
+  #
+  # @note If the sequence file has spaces in the sequence, they will
+  #   be retained. If this is a problem, use #each_record instead.
+  #
+  # @example Parse a gzipped fastA file
+  #   SeqFile.open('reads.fa.gz').each_record_fast do |head, seq|
+  #     puts [head, seq.length].join "\t"
+  #   end
+  #
+  # @example Parse an uncompressed fastQ file
+  #   SeqFile.open('reads.fq.gz').each_record_fast do |head, seq|
+  #     puts [head, seq.length].join "\t"
+  #   end
+  #
+  # @yieldparam header [String] The header of the record without the
+  #   leading '>' or '@'
+  #
+  # @yieldparam sequence [String] The sequence of the record.
+  #
+  # @raise [ParseFasta::SequenceFormatError] if sequence has a '>',
+  #   and file is a fastA file
+  def each_record_fast
+    first_char = get_first_char(self)
+
+    if first_char == '>'
+      FastaFile.open(self).each_record_fast do |header, sequence|
+        yield(header, sequence)
+      end
+    elsif first_char == '@'
+      FastqFile.open(self).each_record_fast do |head, seq, desc, qual|
+        yield(head, seq)
+      end
+    else
+      raise ArgumentError, "Input does not look like FASTA or FASTQ"
+    end
+  end
+
   private
 
   def get_first_char(f)
