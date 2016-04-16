@@ -66,14 +66,11 @@ Read fasta file into a hash.
 
 ## Versions ##
 
-### 1.8 ###
+### 1.8.2 ###
 
-Add `Sequence#rev_comp`. It can handle IUPAC characters. Since
-`parse_fasta` doesn't check whether the seq is AA or NA, if called on
-an amino acid string, things will get weird as it will complement the
-IUPAC characters in the AA string and leave others.
+Speed up `FastqFile#each_record`.
 
-#### 1.8.1 ####
+### 1.8.1 ###
 
 An error will be raised if a fasta file has a `>` in the
 sequence. Sometimes files are not terminated with a newline
@@ -93,12 +90,14 @@ This will raise `ParseFasta::SequenceFormatError`.
 
 Also, headers with lots of `>` within are fine now.
 
+### 1.8 ###
 
-### 1.7 ###
+Add `Sequence#rev_comp`. It can handle IUPAC characters. Since
+`parse_fasta` doesn't check whether the seq is AA or NA, if called on
+an amino acid string, things will get weird as it will complement the
+IUPAC characters in the AA string and leave others.
 
-Add `SeqFile#to_hash`, `FastaFile#to_hash` and `FastqFile#to_hash`.
-
-#### 1.7.2 ####
+### 1.7.2 ###
 
 Strip spaces (not all whitespace) from `Sequence` and `Quality` strings.
 
@@ -108,6 +107,20 @@ there are spaces that don't match in the quality and sequence in a
 fastQ file, then things will get messed up in the FastQ file. FastQ
 shouldn't have spaces though.
 
+### 1.7 ###
+
+Add `SeqFile#to_hash`, `FastaFile#to_hash` and `FastqFile#to_hash`.
+
+### 1.6.2 ###
+
+`FastaFile::open` now raises a `ParseFasta::DataFormatError` when passed files
+that don't begin with a `>`.
+
+### 1.6.1 ###
+
+Better internal handling of empty sequences -- instead of raising
+errors, pass empty sequences.
+
 ### 1.6 ###
 
 Added `SeqFile` class, which accepts either fastA or fastQ files. It
@@ -116,16 +129,6 @@ want your scripts to accept either fastA or fastQ files.
 
 If you need the description and quality string, you should use
 FastqFile instead.
-
-#### 1.6.1 ####
-
-Better internal handling of empty sequences -- instead of raising
-errors, pass empty sequences.
-
-#### 1.6.2 ####
-
-`FastaFile::open` now raises a `ParseFasta::DataFormatError` when passed files
-that don't begin with a `>`.
 
 ### 1.5 ###
 
@@ -204,17 +207,16 @@ Last version with File monkey patch.
 
 ## Benchmark ##
 
-Perhaps this isn't exactly fair since `BioRuby` is a big module with
-lots of features and error checking, whereas `parse_fasta` is meant to
-be lightweight and easy to use for my own research. Oh well ;)
+**NOTE**: These benchmarks are against an older version of
+  `parse_fasta`.
+
+Some quick and dirty benchmarks against `BioRuby`.
 
 ### FastaFile#each_record ###
 
-You're probably wondering...How does it compare to BioRuby in some
-super accurate benchmarking tests? Lucky for you, I calculated
-sequence length for each fasta record with both the `each_record`
-method from this gem and using the `FastaFormat` class from
-BioRuby. You can see the test script in `benchmark.rb`.
+Calculating sequence length length for each fasta record with both the
+`each_record` method from this gem and using the `FastaFormat` class
+from BioRuby. You can see the test script in `benchmark.rb`.
 
 The test file contained 2,009,897 illumina reads and the file size
 was 1.1 gigabytes. Here are the results from Ruby's `Benchmark` class:
@@ -255,19 +257,9 @@ test 2 was 4,000,000 and test 3 was 8,000,000 bases.
 
 Nice!
 
-Troll: "But Ryan, when will you find the GC of an 8,000,000 base
-sequence?"
+Troll: "When will you find the GC of an 8,000,000 base sequence?"
 
 Me: "Step off, troll!"
-
-## Test suite & docs ##
-
-For a good time, you could clone this repo and run the test suite with
-rspec! Or if you just don't trust that it works like it should. The
-specs probably need a little clean up...so fork it and clean it up ;)
-
-Same with the docs. Clone the repo and build them yourself with `yard`
-if you are in need of some excitement.
 
 ## Notes ##
 
