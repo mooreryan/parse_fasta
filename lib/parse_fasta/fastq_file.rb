@@ -78,7 +78,7 @@ class FastqFile < File
     f.each_line do |line|
       line.chomp!
 
-      case count % 4
+      case count
       when 0
         header = line[1..-1]
       when 1
@@ -86,6 +86,7 @@ class FastqFile < File
       when 2
         description = line[1..-1]
       when 3
+        count = -1
         quality = Quality.new(line)
         yield(header, sequence, description, quality)
       end
@@ -137,7 +138,7 @@ class FastqFile < File
     f.each_line do |line|
       line.chomp!
 
-      case count % 4
+      case count
       when 0
         header = line[1..-1]
       when 1
@@ -145,6 +146,7 @@ class FastqFile < File
       when 2
         description = line[1..-1]
       when 3
+        count = -1
         quality = line
         yield(header, sequence, description, quality)
       end
