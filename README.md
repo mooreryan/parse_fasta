@@ -66,6 +66,11 @@ Read fasta file into a hash.
 
 ## Versions ##
 
+### 1.9.1 ###
+
+Speed up fastQ `each_record` and `each_record_fast`. Courtesy of
+[Matthew Ralston](https://github.com/MatthewRalston).
+
 ### 1.9.0 ###
 
 Added "fast" versions of `each_record` methods
