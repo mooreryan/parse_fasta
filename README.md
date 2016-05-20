@@ -66,6 +66,10 @@ Read fasta file into a hash.
 
 ## Versions ##
 
+### 1.9.2 ###
+
+Speed up fastA `each_record` and `each_record_fast`.
+
 ### 1.9.1 ###
 
 Speed up fastQ `each_record` and `each_record_fast`. Courtesy of
@@ -221,59 +225,18 @@ Last version with File monkey patch.
 
 ## Benchmark ##
 
-**NOTE**: These benchmarks are against an older version of
-  `parse_fasta`.
-
 Some quick and dirty benchmarks against `BioRuby`.
 
 ### FastaFile#each_record ###
 
-Calculating sequence length length for each fasta record with both the
-`each_record` method from this gem and using the `FastaFormat` class
-from BioRuby. You can see the test script in `benchmark.rb`.
+You can see the test script in `benchmark.rb`.
 
-The test file contained 2,009,897 illumina reads and the file size
-was 1.1 gigabytes. Here are the results from Ruby's `Benchmark` class:
-
-                      user     system      total        real
-    parse_fasta  64.530000   1.740000  66.270000 ( 67.081502)
-    bioruby     116.250000   2.260000 118.510000 (120.223710)
+                           user     system      total        real
+    parse_fasta        1.920000   0.160000   2.080000 (  2.145932)
+    parse_fasta fast   1.210000   0.160000   1.370000 (  1.377770)
+    bioruby            4.330000   0.290000   4.620000 (  4.655567)
 
 Hot dog! It's faster :)
-
-### FastqFile#each_record ###
-
-The same sequence length test as above, but this time with a fastq
-file containing 4,000,000 illumina reads.
-
-                        user     system      total        real
-    this_fastq     62.610000   1.660000  64.270000 ( 64.389408)
-    bioruby_fastq 165.500000   2.100000 167.600000 (167.969636)
-
-### Sequence#gc ###
-
-The test is done on random strings matcing `/[AaCcTtGgUu]/`. `this_gc`
-is `Sequence.new(str).gc`, and `bioruby_gc` is
-`Bio::Sequence::NA.new(str).gc_content`.
-
-To see how the methods scales, the test 1 string was 2,000,000 bases,
-test 2 was 4,000,000 and test 3 was 8,000,000 bases.
-
-                       user     system      total        real
-    this_gc 1      0.030000   0.000000   0.030000 (  0.029145)
-    bioruby_gc 1   2.030000   0.010000   2.040000 (  2.157512)
-
-	this_gc 2      0.060000   0.000000   0.060000 (  0.059408)
-    bioruby_gc 2   4.060000   0.020000   4.080000 (  4.334159)
-
-	this_gc 3      0.120000   0.000000   0.120000 (  0.185434)
-    bioruby_gc 3   8.060000   0.020000   8.080000 (  8.659071)
-
-Nice!
-
-Troll: "When will you find the GC of an 8,000,000 base sequence?"
-
-Me: "Step off, troll!"
 
 ## Notes ##
 
