@@ -28,16 +28,23 @@ def this_parse_fasta fname
   end
 end
 
+def this_parse_fasta_fast fname
+  FastaFile.open(fname, 'r').each_record_fast do |header, sequence|
+    [header, sequence.length].join("\t")
+  end
+end
+
 def bioruby_parse_fasta fname
   Bio::FastaFormat.open(fname).each do |entry|
     [entry.definition, entry.seq.length].join("\t")
   end
 end
 
-# Benchmark.bmbm do |x|
-#   x.report('parse_fasta') { this_parse_fasta(ARGV.first) }
-#   x.report('bioruby')     { bioruby_parse_fasta(ARGV.first) }
-# end
+Benchmark.bmbm do |x|
+  x.report('parse_fasta') { this_parse_fasta(ARGV.first) }
+  x.report('parse_fasta fast') { this_parse_fasta_fast(ARGV.first) }
+  x.report('bioruby')     { bioruby_parse_fasta(ARGV.first) }
+end
 
 ####
 
@@ -72,8 +79,8 @@ end
 # fastq = ARGV.first
 
 def bioruby_fastq(fastq)
-  Bio::FlatFile.open(Bio::Fastq, fastq) do |fq| 
-    fq.each do |entry| 
+  Bio::FlatFile.open(Bio::Fastq, fastq) do |fq|
+    fq.each do |entry|
       [entry.definition, entry.seq.length].join("\t")
     end
   end

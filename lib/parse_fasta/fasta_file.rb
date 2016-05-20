@@ -116,10 +116,28 @@ class FastaFile < File
       #   end
       # end
     else
-      f.each("\n>") do |line|
-        header, sequence = parse_line(line)
-        yield(header.strip, Sequence.new(sequence || ""))
+      header = ""
+      sequence = ""
+      f.each_line do |line|
+        line.chomp!
+        len = line.length
+        if header.empty? && line.start_with?(">")
+          header = line[1, len]
+        elsif line.start_with?(">")
+          yield(header.strip, Sequence.new(sequence || ""))
+          header = line[1, len]
+          sequence = ""
+        else
+          raise ParseFasta::SequenceFormatError if sequence.include? ">"
+          sequence << line
+        end
       end
+      yield(header, Sequence.new(sequence || ""))
+
+      # f.each("\n>") do |line|
+      #     header, sequence = parse_line(line)
+      #     yield(header.strip, Sequence.new(sequence || ""))
+      #   end
 
       # f.each_with_index(sep=/^>/) do |line, idx|
       #   if idx.zero?
@@ -161,13 +179,31 @@ class FastaFile < File
       f = self
     end
 
-    f.each("\n>") do |line|
-      header, sequence = parse_line(line)
-
-      raise ParseFasta::SequenceFormatError if sequence.include? ">"
-
-      yield(header.strip, sequence)
+    header = ""
+    sequence = ""
+    f.each_line do |line|
+      line.chomp!
+      len = line.length
+      if header.empty? && line.start_with?(">")
+        header = line[1, len]
+      elsif line.start_with?(">")
+        yield(header.strip, sequence)
+        header = line[1, len]
+        sequence = ""
+      else
+        raise ParseFasta::SequenceFormatError if sequence.include? ">"
+        sequence << line
+      end
     end
+    yield(header, sequence)
+
+    # f.each("\n>") do |line|
+    #   header, sequence = parse_line(line)
+
+    #   raise ParseFasta::SequenceFormatError if sequence.include? ">"
+
+    #   yield(header.strip, sequence)
+    # end
 
     f.close if f.instance_of?(Zlib::GzipReader)
     return f
