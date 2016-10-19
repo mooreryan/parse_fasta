@@ -16,10 +16,17 @@
 # You should have received a copy of the GNU General Public License
 # along with parse_fasta.  If not, see <http://www.gnu.org/licenses/>.
 
-require "parse_fasta/version"
-require "parse_fasta/record"
-require "parse_fasta/seq_file"
-require "parse_fasta/error/data_format_error"
-
 module ParseFasta
+  class Record
+    attr_accessor :header, :seq
+
+    def initialize header, seq
+      @header = header
+      @seq = seq.gsub(/ +/, "")
+    end
+
+    def == rec
+      self.header == rec.header && self.seq == rec.seq
+    end
+  end
 end
