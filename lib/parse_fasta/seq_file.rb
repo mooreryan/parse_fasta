@@ -17,16 +17,21 @@
 # along with parse_fasta.  If not, see <http://www.gnu.org/licenses/>.
 
 def get_first_char fname
-  begin
-    f = Zlib::GzipReader.open fname
-  rescue Zlib::GzipFile::Error => e
-    f = File.open fname
-  ensure
-    first_char = f.each_char.peek[0]
+  if File.exists? fname
+    begin
+      f = Zlib::GzipReader.open fname
+    rescue Zlib::GzipFile::Error => e
+      f = File.open fname
+    ensure
+      first_char = f.each_char.peek[0]
 
-    f.close
+      f.close
 
-    return first_char
+      return first_char
+    end
+  else
+    raise ParseFasta::Error::FileNotFoundError,
+          "No such file or directory -- #{fname}"
   end
 end
 
@@ -38,7 +43,9 @@ def check_file fname
   elsif first_char == "@"
     :fastq
   else
-    raise ParseFasta::Error::DataFormatError
+    raise ParseFasta::Error::DataFormatError,
+          "The file does not look like fastA or fastQ " +
+              "-- #{fname}"
   end
 end
 
@@ -88,7 +95,8 @@ module ParseFasta
             if (unused = gz_reader.unused)
               # rewind to the start of the last blob
               file.seek -unused.length, IO::SEEK_END
-            else # there are no more blobs to read
+            else
+              # there are no more blobs to read
               break
             end
           end

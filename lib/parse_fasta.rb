@@ -19,8 +19,7 @@
 require "parse_fasta/version"
 require "parse_fasta/record"
 require "parse_fasta/seq_file"
-require "parse_fasta/error/data_format_error"
-require "parse_fasta/error/sequence_format_error"
+require "parse_fasta/error"
 
 module ParseFasta
 end

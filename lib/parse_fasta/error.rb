@@ -18,7 +18,16 @@
 
 module ParseFasta
   module Error
-    class SequenceFormatError < StandardError
+    class ParseFastaError < StandardError
+    end
+
+    class DataFormatError < ParseFastaError
+    end
+
+    class FileNotFoundError < ParseFastaError
+    end
+
+    class SequenceFormatError < ParseFastaError
     end
   end
 end

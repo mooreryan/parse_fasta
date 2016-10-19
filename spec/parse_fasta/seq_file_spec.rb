@@ -68,8 +68,12 @@ module ParseFasta
 
     describe "::open" do
       context "when the file doesn't exist" do
-        it "raises something"
+        it "raises FileNotFoundError" do
+          expect { SeqFile.open "arstoien" }.
+              to raise_error ParseFasta::Error::FileNotFoundError
+        end
       end
+
       context "when input looks like neither fastA or fastQ" do
         it "raises a DataFormatError" do
           fname = File.join test_dir, "not_a_seq_file.txt"
