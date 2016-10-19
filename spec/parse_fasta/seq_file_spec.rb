@@ -27,6 +27,9 @@ module ParseFasta
     let(:fasta) {
       File.join test_dir, "seqs.fa"
     }
+    let(:fasta_gz) {
+      File.join test_dir, "seqs.fa.gz"
+    }
 
     let(:records) {
       [Record.new("empty seq at beginning", ""),
@@ -45,14 +48,32 @@ module ParseFasta
           fname = File.join test_dir, "not_a_seq_file.txt"
 
           expect { SeqFile.open(fname) }.
-            to raise_error ParseFasta::Error::DataFormatError
+              to raise_error ParseFasta::Error::DataFormatError
         end
       end
 
-      it "takes all the wacky args like IO.open" do
-        expect {
-          SeqFile.open fasta, mode: 'r', cr_newline: true
-        }.not_to raise_error
+      it "sets @fname" do
+        SeqFile.open(fasta) do |f|
+          expect(fasta.fname).to eq fasta
+        end
+      end
+
+      context "when seq file is not gzipped" do
+
+        it "sets @file_class = File" do
+          SeqFile.open(fasta) do |f|
+            expect(fasta.file_class).to eq File
+          end
+        end
+      end
+
+
+      context "when seq file is gzipped" do
+        it "sets @file_class = Zlib::GzipReader" do
+          SeqFile.open(fasta_gz) do |f|
+            expect(fasta.file_class).to eq Zlib::GzipReader
+          end
+        end
       end
 
       it "returns a SeqFile" do
@@ -61,11 +82,34 @@ module ParseFasta
     end
 
     describe "#each_record" do
-      context "fastA input" do
-        it "yields header and sequence for each record" do
-          expect { |b| SeqFile.open(fasta).each_record &b  }.
+      shared_examples "it yields the fastA records" do
+        it "yields the fastA records" do
+          expect { |b| SeqFile.open(fname).each_record &b  }.
               to yield_successive_args(*records)
         end
+      end
+
+      context "with gzipped fastA" do
+        let(:fname) { File.join test_dir, "seqs.fa.gz" }
+
+        include_examples "it yields the fastA records"
+      end
+
+      # context "with gzipped fastA with multiple blobs" do
+      #   # e.g., $ gzip -c a.fa > c.fa.gz; gzip -c b.fa >> c.fa.gz
+      #   let(:fname) { File.join test_dir, "multi_blob.fa.gz" }
+      #   let(:recs) { records + records }
+      #
+      #   it "yields the fastA records" do
+      #     expect { |b| SeqFile.open(fname).each_record &b  }.
+      #         to yield_successive_args(*recs)
+      #   end
+      # end
+
+      context "with non-gzipped fastA" do
+        let(:fname) { File.join test_dir, "seqs.fa" }
+
+        include_examples "it yields the fastA records"
       end
     end
   end

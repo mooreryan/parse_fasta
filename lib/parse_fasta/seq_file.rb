@@ -17,8 +17,16 @@
 # along with parse_fasta.  If not, see <http://www.gnu.org/licenses/>.
 
 def get_first_char fname
-  File.open(fname) do |f|
-    return f.each_char.peek[0]
+  begin
+    f = Zlib::GzipReader.open fname
+  rescue Zlib::GzipFile::Error => e
+    f = File.open fname
+  ensure
+    first_char = f.each_char.peek[0]
+
+    f.close
+
+    return first_char
   end
 end
 
@@ -30,36 +38,60 @@ def check_file fname
   end
 end
 
+def gzipped? fname
+  begin
+    f = Zlib::GzipReader.open fname
+    return true
+  rescue Zlib::GzipFile::Error => e
+    return false
+  ensure
+    f.close if f
+  end
+end
+
 module ParseFasta
-  class SeqFile < File
-    def self.open fname, *args
+  class SeqFile
+    def initialize fname
+      @fname = fname
+
+      if gzipped? fname
+        @file_class = Zlib::GzipReader
+      else
+        @file_class = File
+      end
+    end
+
+    def self.open fname
       check_file fname
 
-      super
+      self.new fname
     end
 
     def each_record
       header = ""
       sequence = ""
-      self.each_line do |line|
-        line.chomp!
-        len = line.length
+      @file_class.open(@fname) do |f|
+        f.each_line do |line|
+          line.chomp!
+          len = line.length
 
-        if header.empty? && line.start_with?(">")
-          header = line[1, len]
-        elsif line.start_with? ">"
-          yield Record.new header.strip, sequence
+          if header.empty? && line.start_with?(">")
+            header = line[1, len]
+          elsif line.start_with? ">"
+            yield Record.new header.strip, sequence
 
-          header = line[1, len]
-          sequence = ""
-        else
-          # raise ParseFasta::Error::SequenceFormatError if sequence.include? ">"
-          sequence << line
+            header = line[1, len]
+            sequence = ""
+          else
+            # raise ParseFasta::Error::SequenceFormatError if sequence.include? ">"
+            sequence << line
+          end
         end
-      end
-      # yield the final seq
-      yield Record.new header, sequence
 
+        # yield the final seq
+        yield Record.new header, sequence
+      end
     end
   end
 end
+
