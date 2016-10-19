@@ -93,7 +93,7 @@ module ParseFasta
       if header.empty? && line.start_with?(">")
         header = line[1, len] # drop the '>'
       elsif line.start_with? ">"
-        yield Record.new header.strip, sequence
+        yield Record.new(header: header.strip, seq: sequence)
 
         header = line[1, len]
         sequence = ""
@@ -113,7 +113,7 @@ module ParseFasta
       end
 
       # yield the final seq
-      yield Record.new header.strip, sequence
+      yield Record.new(header: header.strip, seq: sequence)
     end
 
     def gzipped? fname

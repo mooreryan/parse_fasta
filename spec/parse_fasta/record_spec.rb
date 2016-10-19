@@ -22,22 +22,23 @@ module ParseFasta
   describe Record do
     let(:header) { "apple pie is good"}
     let(:seq) { "ACTG" }
-    let(:rec) { Record.new header, "A C\t\t   T   G\r" }
+    let(:fasta_rec) { Record.new header: header,
+                                 seq:    "A C\t\t   T   G\r" }
 
     describe "::new" do
       it "sets :header" do
-        expect(rec.header).to eq header
+        expect(fasta_rec.header).to eq header
       end
 
       it "sets :seq" do
-        expect(rec.seq).to eq seq
+        expect(fasta_rec.seq).to eq seq
       end
 
       context "when seq has a '>' in it" do
         it "raises SequenceFormatError" do
           str = "actg>sequence 3"
 
-          expect { Record.new header, str }.
+          expect { Record.new header: header, seq: str }.
               to raise_error ParseFasta::Error::SequenceFormatError
         end
       end
@@ -45,11 +46,15 @@ module ParseFasta
 
     describe "#==" do
       it "returns true if each of the attr_accessors are ==" do
-        expect(rec == Record.new(header, seq)).to eq true
+        rec = Record.new header: header, seq: seq
+
+        expect(fasta_rec == rec).to eq true
       end
 
       it "returns false otherwise" do
-        expect(rec == Record.new("a", "b")).to eq false
+        rec = Record.new header: "a", seq: "b"
+
+        expect(fasta_rec == rec).to eq false
       end
 
     end

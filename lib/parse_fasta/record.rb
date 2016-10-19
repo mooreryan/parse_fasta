@@ -20,8 +20,10 @@ module ParseFasta
   class Record
     attr_accessor :header, :seq
 
-    def initialize header, seq
-      @header = header
+    def initialize args = {}
+      @header = args.fetch :header
+
+      seq = args.fetch :seq
       @seq = check_seq(seq).gsub(/\s+/, "")
     end
 
