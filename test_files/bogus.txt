@@ -1,2 +1,0 @@
-this header is missing the '>'
-ACTGACTGATCGATCGTAGCTACGTAGCTACG
