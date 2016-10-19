@@ -30,6 +30,12 @@ module ParseFasta
     let(:fasta_gz) {
       File.join test_dir, "seqs.fa.gz"
     }
+    let(:fastq) {
+      File.join test_dir, "seqs.fq"
+    }
+    let(:fastq_gz) {
+      File.join test_dir, "seqs.fq.gz"
+    }
 
     let(:fasta_records) {
       [Record.new(header: "empty seq at beginning",
@@ -52,21 +58,44 @@ module ParseFasta
     let(:fastq_records) {
       [Record.new(header: "seq1",
                   seq: "AA CC TT GG",
-                  comment: "",
+                  desc: "",
                   qual: ")# 3g Tq N8"),
        Record.new(header: "seq2 @pples",
-                  seq: "ACTG",
-                  comment: "seq2 +pples",
-                  qual: "*ujM")]
+                  seq:    "ACTG",
+                  desc:   "seq2 +pples",
+                  qual:   "*ujM")]
     }
 
     describe "::open" do
+      context "when the file doesn't exist" do
+        it "raises something"
+      end
       context "when input looks like neither fastA or fastQ" do
         it "raises a DataFormatError" do
           fname = File.join test_dir, "not_a_seq_file.txt"
 
           expect { SeqFile.open(fname) }.
               to raise_error ParseFasta::Error::DataFormatError
+        end
+      end
+
+      context "when input looks like fastA" do
+        it "sets @type to :fasta" do
+          expect(SeqFile.open(fasta).type).to eq :fasta
+        end
+
+        it "sets @type to :fasta (gzipped)" do
+          expect(SeqFile.open(fasta_gz).type).to eq :fasta
+        end
+      end
+
+      context "when input looks like fastQ" do
+        it "sets @type to :fastq" do
+          expect(SeqFile.open(fastq).type).to eq :fastq
+        end
+
+        it "sets @type to :fastq (gzipped)" do
+          expect(SeqFile.open(fastq_gz).type).to eq :fastq
         end
       end
 
@@ -108,14 +137,29 @@ module ParseFasta
         end
       end
 
-      # context "input is fastQ" do
-      #   context "with non-gzipped fastQ" do
-      #     let(:fname) { File.join test_dir, "seqs.fq" }
-      #     let(:records) { fastq_records }
-      #
-      #     include_examples "it yields the records"
-      #   end
-      # end
+      context "input is fastQ" do
+        context "with gzipped fastQ" do
+          let(:fname) { File.join test_dir, "seqs.fq.gz" }
+          let(:records) { fastq_records }
+
+          include_examples "it yields the records"
+        end
+
+        context "with gzipped fastQ with multiple blobs" do
+          # e.g., $ gzip -c a.fq > c.fq.gz; gzip -c b.fq >> c.fq.gz
+          let(:fname) { File.join test_dir, "multi_blob.fq.gz" }
+          let(:records) { fastq_records + fastq_records }
+
+          include_examples "it yields the records"
+        end
+
+        context "with non-gzipped fastQ" do
+          let(:fname) { File.join test_dir, "seqs.fq" }
+          let(:records) { fastq_records }
+
+          include_examples "it yields the records"
+        end
+      end
     end
   end
 end

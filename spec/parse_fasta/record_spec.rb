@@ -22,7 +22,7 @@ module ParseFasta
   describe Record do
     let(:header)  { "apple pie is good"}
     let(:seq)     { "ACTG" }
-    let(:comment) { "apple" }
+    let(:desc) { "apple" }
     let(:qual)    { "abcd" }
 
     let(:fasta_rec) {
@@ -30,10 +30,10 @@ module ParseFasta
                  seq:    "A C\t\t   T   G\r"
     }
     let(:fastq_rec) {
-      Record.new header:  header,
-                 seq:     "A C\t\t   T   G\r",
-                 comment: comment,
-                 qual:    " a  b \tcd "
+      Record.new header: header,
+                 seq:    "A C\t\t   T   G\r",
+                 desc:   desc,
+                 qual:   " a  b \tcd "
     }
 
     describe "::new" do
@@ -46,8 +46,8 @@ module ParseFasta
           expect(fasta_rec.seq).to eq seq
         end
 
-        it "sets :comment to nil" do
-          expect(fasta_rec.comment).to eq nil
+        it "sets :desc to nil" do
+          expect(fasta_rec.desc).to eq nil
         end
 
         it "sets :qual to nil" do
@@ -73,8 +73,8 @@ module ParseFasta
           expect(fastq_rec.seq).to eq seq
         end
 
-        it "sets :comment to nil" do
-          expect(fastq_rec.comment).to eq comment
+        it "sets :desc to nil" do
+          expect(fastq_rec.desc).to eq desc
         end
 
         it "sets :qual to nil" do
@@ -86,9 +86,9 @@ module ParseFasta
             str = "actg>sequence 3"
 
             expect { Record.new header: header,
-                                seq: str,
-                                comment: comment,
-                                qual: qual }.
+                                seq:    str,
+                                desc:   desc,
+                                qual:   qual }.
                 not_to raise_error
           end
         end

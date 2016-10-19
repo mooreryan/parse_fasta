@@ -18,12 +18,12 @@
 
 module ParseFasta
   class Record
-    attr_accessor :header, :seq, :comment, :qual
+    attr_accessor :header, :seq, :desc, :qual
 
     def initialize args = {}
       @header = args.fetch :header
 
-      @comment = args.fetch :comment, nil
+      @desc = args.fetch :desc, nil
       @qual = args.fetch :qual, nil
 
       @qual.gsub!(/\s+/, "") if @qual

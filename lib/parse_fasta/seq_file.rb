@@ -33,46 +33,56 @@ end
 def check_file fname
   first_char = get_first_char fname
 
-  unless first_char == ">" || first_char == "@"
+  if first_char == ">"
+    :fasta
+  elsif first_char == "@"
+    :fastq
+  else
     raise ParseFasta::Error::DataFormatError
   end
 end
 
 module ParseFasta
   class SeqFile
+    attr_accessor :type
+
     def initialize fname
+      type = check_file fname
+
       @fname = fname
+      @type = type
     end
 
     def self.open fname
-      check_file fname
-
       self.new fname
     end
 
     def each_record &b
+      line_parser = "parse_#{@type}_lines"
+
       if gzipped? @fname
-        each_fasta_record_gzipped &b
+        each_record_gzipped line_parser, &b
       else
-        each_fasta_record_non_gzipped &b
+        each_record_non_gzipped line_parser, &b
       end
     end
+
 
     private
 
-    def each_fasta_record_non_gzipped &b
+    def each_record_non_gzipped line_parser, &b
       File.open(@fname) do |f|
-        parse_fasta_lines f, &b
+        self.send line_parser, f, &b
       end
     end
 
-    def each_fasta_record_gzipped &b
+    def each_record_gzipped line_parser, &b
       File.open(@fname) do |file|
         loop do
           begin
             gz_reader = Zlib::GzipReader.new file
 
-            parse_fasta_lines gz_reader, &b
+            self.send line_parser, gz_reader, &b
 
             # check if there are any more blobs to read
             if (unused = gz_reader.unused)
@@ -104,6 +114,31 @@ module ParseFasta
       [header, sequence]
     end
 
+    def parse_fastq_line line, header, seq, desc, qual, count, &b
+      line.chomp!
+
+      case count
+        when 0
+          header = line[1..-1]
+        when 1
+          seq = line
+        when 2
+          desc = line[1..-1]
+        when 3
+          count = -1
+          qual = line
+
+          yield Record.new(header: header,
+                           seq:    seq,
+                           desc:   desc,
+                           qual:   qual)
+      end
+
+      count += 1
+
+      [header, seq, desc, qual, count]
+    end
+
     def parse_fasta_lines file_reader, &b
       header = ""
       sequence = ""
@@ -114,6 +149,19 @@ module ParseFasta
 
       # yield the final seq
       yield Record.new(header: header.strip, seq: sequence)
+    end
+
+    def parse_fastq_lines file_reader, &b
+      count  = 0
+      header = ""
+      seq    = ""
+      desc   = ""
+      qual   = ""
+
+      file_reader.each_line do |line|
+        header, seq, desc, qual, count =
+            parse_fastq_line line, header, seq, desc, qual, count, &b
+      end
     end
 
     def gzipped? fname
