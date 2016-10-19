@@ -22,7 +22,7 @@ module ParseFasta
   describe Record do
     let(:header) { "apple pie is good"}
     let(:seq) { "ACTG" }
-    let(:rec) { Record.new header, seq }
+    let(:rec) { Record.new header, "A C\t\t   T   G\r" }
 
     describe "::new" do
       it "sets :header" do
@@ -31,6 +31,15 @@ module ParseFasta
 
       it "sets :seq" do
         expect(rec.seq).to eq seq
+      end
+
+      context "when seq has a '>' in it" do
+        it "raises SequenceFormatError" do
+          str = "actg>sequence 3"
+
+          expect { Record.new header, str }.
+              to raise_error ParseFasta::Error::SequenceFormatError
+        end
       end
     end
 

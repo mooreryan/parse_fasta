@@ -17,26 +17,8 @@
 # along with parse_fasta.  If not, see <http://www.gnu.org/licenses/>.
 
 module ParseFasta
-  class Record
-    attr_accessor :header, :seq
-
-    def initialize header, seq
-      @header = header
-      @seq = check_seq(seq).gsub(/\s+/, "")
-    end
-
-    def == rec
-      self.header == rec.header && self.seq == rec.seq
-    end
-
-    private
-
-    def check_seq seq
-      if seq.match ">"
-        raise ParseFasta::Error::SequenceFormatError
-      else
-        seq
-      end
+  module Error
+    class SequenceFormatError < StandardError
     end
   end
 end
