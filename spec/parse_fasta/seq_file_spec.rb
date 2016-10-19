@@ -49,10 +49,16 @@ module ParseFasta
        Record.new(header: "empty seq at end",
                   seq: "")]
     }
-    # let(:fastq_records) {
-    #   [Record.new("seq1", "AA CC TT GG", "", ")# 3g Tq N8"),
-    #    Record.new("seq2 apples", "ACTG", "seq2 @pples", "*ujM")]
-    # }
+    let(:fastq_records) {
+      [Record.new(header: "seq1",
+                  seq: "AA CC TT GG",
+                  comment: "",
+                  qual: ")# 3g Tq N8"),
+       Record.new(header: "seq2 @pples",
+                  seq: "ACTG",
+                  comment: "seq2 +pples",
+                  qual: "*ujM")]
+    }
 
     describe "::open" do
       context "when input looks like neither fastA or fastQ" do
@@ -104,7 +110,7 @@ module ParseFasta
 
       # context "input is fastQ" do
       #   context "with non-gzipped fastQ" do
-      #     let(:fname) { File.join test_dir, "seqs.fa" }
+      #     let(:fname) { File.join test_dir, "seqs.fq" }
       #     let(:records) { fastq_records }
       #
       #     include_examples "it yields the records"

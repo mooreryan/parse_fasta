@@ -20,26 +20,77 @@ require "spec_helper"
 
 module ParseFasta
   describe Record do
-    let(:header) { "apple pie is good"}
-    let(:seq) { "ACTG" }
-    let(:fasta_rec) { Record.new header: header,
-                                 seq:    "A C\t\t   T   G\r" }
+    let(:header)  { "apple pie is good"}
+    let(:seq)     { "ACTG" }
+    let(:comment) { "apple" }
+    let(:qual)    { "abcd" }
+
+    let(:fasta_rec) {
+      Record.new header: header,
+                 seq:    "A C\t\t   T   G\r"
+    }
+    let(:fastq_rec) {
+      Record.new header:  header,
+                 seq:     "A C\t\t   T   G\r",
+                 comment: comment,
+                 qual:    " a  b \tcd "
+    }
 
     describe "::new" do
-      it "sets :header" do
-        expect(fasta_rec.header).to eq header
+      context "fastA input" do
+        it "sets :header" do
+          expect(fasta_rec.header).to eq header
+        end
+
+        it "sets :seq" do
+          expect(fasta_rec.seq).to eq seq
+        end
+
+        it "sets :comment to nil" do
+          expect(fasta_rec.comment).to eq nil
+        end
+
+        it "sets :qual to nil" do
+          expect(fasta_rec.qual).to eq nil
+        end
+
+        context "when seq has a '>' in it" do
+          it "raises SequenceFormatError" do
+            str = "actg>sequence 3"
+
+            expect { Record.new header: header, seq: str }.
+                to raise_error ParseFasta::Error::SequenceFormatError
+          end
+        end
       end
 
-      it "sets :seq" do
-        expect(fasta_rec.seq).to eq seq
-      end
+      context "fastQ input" do
+        it "sets :header" do
+          expect(fastq_rec.header).to eq header
+        end
 
-      context "when seq has a '>' in it" do
-        it "raises SequenceFormatError" do
-          str = "actg>sequence 3"
+        it "sets :seq" do
+          expect(fastq_rec.seq).to eq seq
+        end
 
-          expect { Record.new header: header, seq: str }.
-              to raise_error ParseFasta::Error::SequenceFormatError
+        it "sets :comment to nil" do
+          expect(fastq_rec.comment).to eq comment
+        end
+
+        it "sets :qual to nil" do
+          expect(fastq_rec.qual).to eq qual
+        end
+
+        context "when seq has a '>' in it" do
+          it "does NOT rais SequenceFormatError" do
+            str = "actg>sequence 3"
+
+            expect { Record.new header: header,
+                                seq: str,
+                                comment: comment,
+                                qual: qual }.
+                not_to raise_error
+          end
         end
       end
     end

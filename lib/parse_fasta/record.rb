@@ -18,13 +18,23 @@
 
 module ParseFasta
   class Record
-    attr_accessor :header, :seq
+    attr_accessor :header, :seq, :comment, :qual
 
     def initialize args = {}
       @header = args.fetch :header
 
-      seq = args.fetch :seq
-      @seq = check_seq(seq).gsub(/\s+/, "")
+      @comment = args.fetch :comment, nil
+      @qual = args.fetch :qual, nil
+
+      @qual.gsub!(/\s+/, "") if @qual
+
+      seq = args.fetch(:seq).gsub(/\s+/, "")
+
+      if @qual # is fastQ
+        @seq = seq
+      else # is fastA
+        @seq = check_fasta_seq(seq)
+      end
     end
 
     def == rec
@@ -33,9 +43,11 @@ module ParseFasta
 
     private
 
-    def check_seq seq
+    def check_fasta_seq seq
       if seq.match ">"
-        raise ParseFasta::Error::SequenceFormatError
+        raise ParseFasta::Error::SequenceFormatError,
+              "A sequence contained a '>' character " +
+                  "(the fastA file record separator)"
       else
         seq
       end

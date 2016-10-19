@@ -52,27 +52,27 @@ module ParseFasta
 
     def each_record &b
       if gzipped? @fname
-        each_record_gzipped &b
+        each_fasta_record_gzipped &b
       else
-        each_record_non_gzipped &b
+        each_fasta_record_non_gzipped &b
       end
     end
 
     private
 
-    def each_record_non_gzipped &b
+    def each_fasta_record_non_gzipped &b
       File.open(@fname) do |f|
-        parse_lines f, &b
+        parse_fasta_lines f, &b
       end
     end
 
-    def each_record_gzipped &b
+    def each_fasta_record_gzipped &b
       File.open(@fname) do |file|
         loop do
           begin
             gz_reader = Zlib::GzipReader.new file
 
-            parse_lines gz_reader, &b
+            parse_fasta_lines gz_reader, &b
 
             # check if there are any more blobs to read
             if (unused = gz_reader.unused)
@@ -86,7 +86,7 @@ module ParseFasta
       end
     end
 
-    def parse_line line, header, sequence, &b
+    def parse_fasta_line line, header, sequence, &b
       line.chomp!
       len = line.length
 
@@ -104,12 +104,12 @@ module ParseFasta
       [header, sequence]
     end
 
-    def parse_lines file_reader, &b
+    def parse_fasta_lines file_reader, &b
       header = ""
       sequence = ""
 
       file_reader.each_line do |line|
-        header, sequence = parse_line line, header, sequence, &b
+        header, sequence = parse_fasta_line line, header, sequence, &b
       end
 
       # yield the final seq
