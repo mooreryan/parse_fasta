@@ -38,27 +38,10 @@ def check_file fname
   end
 end
 
-def gzipped? fname
-  begin
-    f = Zlib::GzipReader.open fname
-    return true
-  rescue Zlib::GzipFile::Error => e
-    return false
-  ensure
-    f.close if f
-  end
-end
-
 module ParseFasta
   class SeqFile
     def initialize fname
       @fname = fname
-
-      if gzipped? fname
-        @file_class = Zlib::GzipReader
-      else
-        @file_class = File
-      end
     end
 
     def self.open fname
@@ -67,29 +50,80 @@ module ParseFasta
       self.new fname
     end
 
-    def each_record
-      header = ""
-      sequence = ""
-      @file_class.open(@fname) do |f|
-        f.each_line do |line|
-          line.chomp!
-          len = line.length
+    def each_record &b
+      if gzipped? @fname
+        each_record_gzipped &b
+      else
+        each_record_non_gzipped &b
+      end
+    end
 
-          if header.empty? && line.start_with?(">")
-            header = line[1, len]
-          elsif line.start_with? ">"
-            yield Record.new header.strip, sequence
+    private
 
-            header = line[1, len]
-            sequence = ""
-          else
-            # raise ParseFasta::Error::SequenceFormatError if sequence.include? ">"
-            sequence << line
+    def each_record_non_gzipped &b
+      File.open(@fname) do |f|
+        parse_lines f, &b
+      end
+    end
+
+    def each_record_gzipped &b
+      File.open(@fname) do |file|
+        loop do
+          begin
+            gz_reader = Zlib::GzipReader.new file
+
+            parse_lines gz_reader, &b
+
+            # check if there are any more blobs to read
+            if (unused = gz_reader.unused)
+              # rewind to the start of the last blob
+              file.seek -unused.length, IO::SEEK_END
+            else # there are no more blobs to read
+              break
+            end
           end
         end
+      end
+    end
 
-        # yield the final seq
-        yield Record.new header, sequence
+    def parse_line line, header, sequence, &b
+      line.chomp!
+      len = line.length
+
+      if header.empty? && line.start_with?(">")
+        header = line[1, len] # drop the '>'
+      elsif line.start_with? ">"
+        yield Record.new header.strip, sequence
+
+        header = line[1, len]
+        sequence = ""
+      else
+        sequence << line
+      end
+
+      [header, sequence]
+    end
+
+    def parse_lines file_reader, &b
+      header = ""
+      sequence = ""
+
+      file_reader.each_line do |line|
+        header, sequence = parse_line line, header, sequence, &b
+      end
+
+      # yield the final seq
+      yield Record.new header.strip, sequence
+    end
+
+    def gzipped? fname
+      begin
+        f = Zlib::GzipReader.open fname
+        return true
+      rescue Zlib::GzipFile::Error => e
+        return false
+      ensure
+        f.close if f
       end
     end
   end
