@@ -115,13 +115,13 @@ module ParseFasta
     private
 
     def each_record_non_gzipped line_parser, &b
-      File.open(@fname) do |f|
+      File.open(@fname, "rt") do |f|
         self.send line_parser, f, &b
       end
     end
 
     def each_record_gzipped line_parser, &b
-      File.open(@fname) do |file|
+      File.open(@fname, "rt") do |file|
         loop do
           begin
             gz_reader = Zlib::GzipReader.new file
@@ -189,6 +189,7 @@ module ParseFasta
       sequence = ""
 
       file_reader.each_line do |line|
+        p [:fasta_line, line]
         header, sequence = parse_fasta_line line, header, sequence, &b
       end
 
@@ -204,6 +205,7 @@ module ParseFasta
       qual   = ""
 
       file_reader.each_line do |line|
+        p [:fastq_line, line]
         header, seq, desc, qual, count =
             parse_fastq_line line, header, seq, desc, qual, count, &b
       end

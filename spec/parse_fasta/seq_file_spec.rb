@@ -66,6 +66,17 @@ module ParseFasta
                   qual:   "*ujM")]
     }
 
+    # to test the line endings
+    let(:line_endings_fastq_records) {
+      [Record.new(header: "apple", seq: "ACTG", desc: "", qual: "IIII"),
+       Record.new(header: "pie",   seq: "AACC", desc: "", qual: "BBBB"),]
+    }
+    let(:line_endings_fasta_records) {
+      [Record.new(header: "apple", seq: "ACTG"),
+       Record.new(header: "pie",   seq: "AACC"),]
+    }
+
+
     describe "::open" do
       context "when the file doesn't exist" do
         it "raises FileNotFoundError" do
@@ -160,6 +171,64 @@ module ParseFasta
         context "with non-gzipped fastQ" do
           let(:fname) { File.join test_dir, "seqs.fq" }
           let(:records) { fastq_records }
+
+          include_examples "it yields the records"
+        end
+      end
+
+      context "handles non newline line endings" do
+        context "fastQ, non-gz, carriage return only" do
+          let(:fname) { File.join test_dir, "cr.fq" }
+          let(:records) { line_endings_fastq_records }
+
+          include_examples "it yields the records"
+        end
+
+        context "fastQ, gz, carriage return only" do
+          let(:fname) { File.join test_dir, "cr.fq.gz" }
+          let(:records) { line_endings_fastq_records }
+
+          include_examples "it yields the records"
+        end
+
+        context "fastQ, non-gz, carriage return and newline" do
+          let(:fname) { File.join test_dir, "cr_nl.fq" }
+          let(:records) { line_endings_fastq_records }
+
+          include_examples "it yields the records"
+        end
+
+        context "fastQ, gz, carriage return and newline" do
+          let(:fname) { File.join test_dir, "cr_nl.fq.gz" }
+          let(:records) { line_endings_fastq_records }
+
+          include_examples "it yields the records"
+        end
+
+        context "fastA, non-gz, carriage return only" do
+          let(:fname) { File.join test_dir, "cr.fa" }
+          let(:records) { line_endings_fasta_records }
+
+          include_examples "it yields the records"
+        end
+
+        context "fastA, gz, carriage return only" do
+          let(:fname) { File.join test_dir, "cr.fa.gz" }
+          let(:records) { line_endings_fasta_records }
+
+          include_examples "it yields the records"
+        end
+
+        context "fastA, non-gz, carriage return and newline" do
+          let(:fname) { File.join test_dir, "cr_nl.fa" }
+          let(:records) { line_endings_fasta_records }
+
+          include_examples "it yields the records"
+        end
+
+        context "fastA, gz, carriage return and newline" do
+          let(:fname) { File.join test_dir, "cr_nl.fa.gz" }
+          let(:records) { line_endings_fasta_records }
 
           include_examples "it yields the records"
         end
