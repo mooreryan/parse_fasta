@@ -97,15 +97,17 @@ module ParseFasta
 
     describe "#==" do
       it "returns true if each of the attr_accessors are ==" do
-        rec = Record.new header: header, seq: seq
+        rec1 = Record.new header: "a", seq: "a", desc: "", qual: "A"
+        rec2 = Record.new header: "a", seq: "a", desc: "", qual: "A"
 
-        expect(fasta_rec == rec).to eq true
+        expect(rec1 == rec2).to eq true
       end
 
       it "returns false otherwise" do
-        rec = Record.new header: "a", seq: "b"
+        rec1 = Record.new header: "a", seq: "a", desc: "", qual: "A"
+        rec2 = Record.new header: "a", seq: "a", desc: "", qual: "b"
 
-        expect(fasta_rec == rec).to eq false
+        expect(rec1 == rec2).to eq false
       end
 
     end

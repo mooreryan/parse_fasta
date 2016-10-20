@@ -18,8 +18,34 @@
 
 module ParseFasta
   class Record
+
+    # @!attribute header
+    #   @return [String] the full header of the record without the '>'
+    #     or '@'
+    # @!attribute seq
+    #   @return [String] the sequence of the record
+    # @!attribute desc
+    #   @return [String or Nil] if the record is from a fastA file, it
+    #     is nil; else, the description line of the fastQ record
+    # @!attribute qual
+    #   @return [String or Nil] if the record is from a fastA file, it
+    #     is nil; else, the quality string of the fastQ record
     attr_accessor :header, :seq, :desc, :qual
 
+    # The constructor takes keyword args.
+    #
+    # @example Init a new Record object for a fastA record
+    #   Record.new header: "apple", seq: "actg"
+    # @example Init a new Record object for a fastQ record
+    #   Record.new header: "apple", seq: "actd", desc: "", qual: "IIII"
+    #
+    # @param header [String] the header of the record
+    # @param seq [String] the sequence of the record
+    # @param desc [String] the description line of a fastQ record
+    # @param qual [String] the quality string of a fastQ record
+    #
+    # @raise [SequenceFormatError] if a fastA sequence has a '>'
+    #   character in it
     def initialize args = {}
       @header = args.fetch :header
 
@@ -37,8 +63,14 @@ module ParseFasta
       end
     end
 
+    # Compare attrs of this rec with another
+    #
+    # @param rec [Record] a Record object to compare with
+    #
+    # @return [Bool] true or false
     def == rec
-      self.header == rec.header && self.seq == rec.seq
+      self.header == rec.header && self.seq == rec.seq &&
+          self.desc == rec.desc && self.qual == rec.qual
     end
 
     private

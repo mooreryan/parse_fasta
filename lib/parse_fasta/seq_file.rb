@@ -51,8 +51,17 @@ end
 
 module ParseFasta
   class SeqFile
+    # @!attribute type
+    #   @return [Symbol] the type of the SeqFile (:fasta or :fastq)
     attr_accessor :type
 
+    # @param fname [String] the name of the fastA or fastQ file to
+    #   parse
+    #
+    # @raise [ParseFasta::Error::FileNotFoundError] if the file is not
+    #   found
+    # @raise [ParseFasta::Error::DataFormatError] if the file doesn't
+    #   start with a '>' or a '@'
     def initialize fname
       type = check_file fname
 
@@ -60,10 +69,38 @@ module ParseFasta
       @type = type
     end
 
+    # An alias for SeqFile.new
+    #
+    # @return [SeqFile] a SeqFile object
     def self.open fname
       self.new fname
     end
 
+    # Analagous to IO#each_line, SeqFile#each_record is used to go
+    # through a fastA or fastQ file record by record. It will accept
+    # gzipped files as well.
+    #
+    # If the input is a fastA file, then the record that is yielded
+    # will have the desc and qual instance variables be nil. If it is
+    # a fastQ record then those instance variables will not be nil.
+    #
+    # @example Parsing a fastA file
+    #   ParseFasta::SeqFile.open("seqs.fa").each_record do |rec|
+    #     puts [rec.header, rec.seq].join "\t"
+    #
+    #     rec.desc.nil? #=> true
+    #     rec.qual.nil? #=> true
+    #   end
+    # @example Parsing a gzipped fastQ file
+    #   ParseFasta::SeqFile.open("seqs.fq.gz").each_record do |rec|
+    #     puts [rec.header, rec.seq, rec.desc, rec.qual].join "\t"
+    #   end
+    #
+    # @yieldparam record [ParseFasta::Record] A Record object with all
+    #   the info of the record
+    #
+    # @raise [ParseFasta::Error::SequenceFormatError] if a fastA file
+    #   contains a record with a '>' character in the header
     def each_record &b
       line_parser = "parse_#{@type}_lines"
 
@@ -184,4 +221,3 @@ module ParseFasta
     end
   end
 end
-
