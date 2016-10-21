@@ -18,39 +18,6 @@
 
 require "zlib"
 
-def get_first_char fname
-  if File.exists? fname
-    begin
-      f = Zlib::GzipReader.open fname
-    rescue Zlib::GzipFile::Error
-      f = File.open fname
-    ensure
-      # f.close
-    end
-
-    first_char = f.each_char.peek[0]
-    f.close
-    return first_char
-  else
-    raise ParseFasta::Error::FileNotFoundError,
-          "No such file or directory -- #{fname}"
-  end
-end
-
-def check_file fname
-  first_char = get_first_char fname
-
-  if first_char == ">"
-    :fasta
-  elsif first_char == "@"
-    :fastq
-  else
-    raise ParseFasta::Error::DataFormatError,
-          "The file does not look like fastA or fastQ " +
-              "-- #{fname}"
-  end
-end
-
 module ParseFasta
   class SeqFile
     # @!attribute type
@@ -249,6 +216,40 @@ module ParseFasta
       end
 
       line_reader
+    end
+
+    def get_first_char fname
+      if File.exists? fname
+        begin
+          f = Zlib::GzipReader.open fname
+        rescue Zlib::GzipFile::Error
+          f = File.open fname
+        end
+
+        begin
+          first_char = f.each_char.peek[0]
+          return first_char
+        ensure
+          f.close
+        end
+      else
+        raise ParseFasta::Error::FileNotFoundError,
+              "No such file or directory -- #{fname}"
+      end
+    end
+
+    def check_file fname
+      first_char = get_first_char fname
+
+      if first_char == ">"
+        :fasta
+      elsif first_char == "@"
+        :fastq
+      else
+        raise ParseFasta::Error::DataFormatError,
+              "The file does not look like fastA or fastQ " +
+                  "-- #{fname}"
+      end
     end
   end
 end
