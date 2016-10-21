@@ -20,7 +20,7 @@ def get_first_char fname
   if File.exists? fname
     begin
       f = Zlib::GzipReader.open fname
-    rescue Zlib::GzipFile::Error => e
+    rescue Zlib::GzipFile::Error
       f = File.open fname
     ensure
       first_char = f.each_char.peek[0]
@@ -177,6 +177,9 @@ module ParseFasta
                            seq:    seq,
                            desc:   desc,
                            qual:   qual)
+        else
+          raise ParseFasta::Error::ParseFastaError,
+                "Something went wrong in parse_fastq_line"
       end
 
       count += 1
@@ -188,8 +191,8 @@ module ParseFasta
       header = ""
       sequence = ""
 
-      file_reader.each_line do |line|
-        p [:fasta_line, line]
+      line_reader = which_line_reader file_reader
+      file_reader.send(*line_reader) do |line|
         header, sequence = parse_fasta_line line, header, sequence, &b
       end
 
@@ -204,8 +207,8 @@ module ParseFasta
       desc   = ""
       qual   = ""
 
-      file_reader.each_line do |line|
-        p [:fastq_line, line]
+      line_reader = which_line_reader file_reader
+      file_reader.send(*line_reader) do |line|
         header, seq, desc, qual, count =
             parse_fastq_line line, header, seq, desc, qual, count, &b
       end
@@ -220,6 +223,30 @@ module ParseFasta
       ensure
         f.close if f
       end
+    end
+
+    # The Zlib::GzipReader can't handle files where the line separator
+    # is \r. This could all be avoided by using IO.popen("gzip -cd
+    # #{fname}", "rt"), but will gzip always be available?
+    def which_line_reader file_reader
+      line_reader = [:each_line]
+      # a valid fasta file must have at least two lines, the header
+      # and the sequence
+      begin
+        enum = file_reader.each_line
+        # if this was ruby v2.3, then we could just call .size on enum
+        2.times do
+          enum.next
+        end
+      rescue StopIteration
+        # Zlib::GzipReader can handle \n and \r\n, but not \r, so if
+        # we get here, the file has \r only for line endings
+        line_reader = [:each, "\r"]
+      ensure
+        file_reader.rewind
+      end
+
+      line_reader
     end
   end
 end
