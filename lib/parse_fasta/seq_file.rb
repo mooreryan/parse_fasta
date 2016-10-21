@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with parse_fasta.  If not, see <http://www.gnu.org/licenses/>.
 
+require "zlib"
+
 def get_first_char fname
   if File.exists? fname
     begin
@@ -23,12 +25,12 @@ def get_first_char fname
     rescue Zlib::GzipFile::Error
       f = File.open fname
     ensure
-      first_char = f.each_char.peek[0]
-
-      f.close
-
-      return first_char
+      # f.close
     end
+
+    first_char = f.each_char.peek[0]
+    f.close
+    return first_char
   else
     raise ParseFasta::Error::FileNotFoundError,
           "No such file or directory -- #{fname}"
