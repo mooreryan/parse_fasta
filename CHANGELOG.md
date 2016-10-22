@@ -1,5 +1,9 @@
 ## Versions ##
 
+### 2.1.0 ###
+
+Add `#to_s`, `#to_fasta`, and `#to_fastq` to `Record`.
+
 ### 2.0.0 ###
 
 A weird feature of `Zlib::GzipReader` made it so that if a gzipped file was created like this.

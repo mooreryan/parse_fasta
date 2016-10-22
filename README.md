@@ -59,13 +59,21 @@ The `Record#desc` and `Record#qual` will be `nil` if the file you are parsing is
 ```ruby
 ParseFasta::SeqFile.open(ARGV[0]).each_record do |rec|
   if rec.qual
-    puts "@#{rec.header}"
-    puts rec.seq
-    puts "+#{rec.desc}"
-    puts rec.qual
+    # it's a fastQ record
   else
-    puts ">#{rec.header}"
-    puts rec.sequence
+    # it's a fastA record
+  end  
+end
+```
+
+You can also check this with `Record#fastq?`
+
+```ruby
+ParseFasta::SeqFile.open(ARGV[0]).each_record do |rec|
+  if rec.fastq?
+    # it's a fastQ record
+  else
+    # it's a fastA record
   end  
 end
 ```

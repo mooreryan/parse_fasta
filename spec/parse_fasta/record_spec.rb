@@ -111,6 +111,20 @@ module ParseFasta
       end
     end
 
+    describe "#fastq?" do
+      it "returns true if @qual is not nil" do
+        rec = Record.new header: "a", seq: "a", qual: "a"
+
+        expect(rec.fastq?).to eq true
+      end
+
+      it "returns nil if @qual is nil" do
+        rec = Record.new header: "a", seq: "a"
+
+        expect(rec.fastq?).to eq nil
+      end
+    end
+
     describe "#to_s" do
       context "when the record is fastA like" do
         it "returns a string of the fastA record ready to print" do

@@ -151,6 +151,15 @@ module ParseFasta
       end
     end
 
+    # Returns true if record is a fastQ record.
+    #
+    # This method returns true if the fastq instance method is set.
+    #
+    # @return [Bool] true if record is fastQ, false if it is fastA
+    def fastq?
+      true if @qual
+    end
+
     private
 
     def check_fasta_seq seq
@@ -161,10 +170,6 @@ module ParseFasta
       else
         seq
       end
-    end
-
-    def fastq?
-      true if @qual
     end
 
     def make_qual_str qual
