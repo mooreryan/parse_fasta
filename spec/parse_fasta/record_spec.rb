@@ -109,7 +109,73 @@ module ParseFasta
 
         expect(rec1 == rec2).to eq false
       end
-
     end
+
+    describe "#to_s" do
+      context "when the record is fastA like" do
+        it "returns a string of the fastA record ready to print" do
+          rec = Record.new header: "apple", seq: "actg"
+
+          expect(rec.to_s).to eq ">apple\nactg"
+        end
+      end
+
+      context "when the record is fastQ like" do
+        it "returns a string of the fastQ record ready to print" do
+          rec = Record.new header: "apple", seq: "actg", desc: "", qual: "IIII"
+
+          expect(rec.to_s).to eq "@apple\nactg\n+\nIIII"
+        end
+      end
+    end
+
+    describe "#to_fasta" do
+      context "when the record is fastA like" do
+        it "returns a string of the fastA record ready to print" do
+          rec = Record.new header: "apple", seq: "actg"
+
+          expect(rec.to_fasta).to eq ">apple\nactg"
+        end
+      end
+
+      context "when the record is fastQ like" do
+        it "returns a string of the fastQ record in fastA format" do
+          rec = Record.new header: "apple", seq: "actg", desc: "", qual: "IIII"
+
+          expect(rec.to_fasta).to eq ">apple\nactg"
+        end
+      end
+    end
+
+    describe "#to_fastq" do
+      context "when the record is fastA like" do
+        let(:rec) {Record.new header: "apple", seq: "actg"}
+
+        it "has a default quality string (I) and description" do
+          expect(rec.to_fastq).to eq "@apple\nactg\n+\nIIII"
+        end
+
+        it "can specify the qual string value" do
+          expect(rec.to_fastq qual: "A").to eq "@apple\nactg\n+\nAAAA"
+        end
+
+        it "can specify the description" do
+          expect(rec.to_fastq desc: "pie").to eq "@apple\nactg\n+pie\nIIII"
+        end
+
+        it "can specify the both" do
+          expect(rec.to_fastq qual: "A", desc: "pie").to eq "@apple\nactg\n+pie\nAAAA"
+        end
+      end
+
+      context "when the record is fastQ like" do
+        it "returns a string of the fastQ format" do
+          rec = Record.new header: "apple", seq: "actg", desc: "", qual: "IIII"
+
+          expect(rec.to_fastq).to eq "@apple\nactg\n+\nIIII"
+        end
+      end
+    end
+
   end
 end

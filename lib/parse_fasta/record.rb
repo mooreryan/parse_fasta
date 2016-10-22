@@ -56,7 +56,7 @@ module ParseFasta
 
       seq = args.fetch(:seq).gsub(/\s+/, "")
 
-      if @qual # is fastQ
+      if fastq? # is fastQ
         @seq = seq
       else # is fastA
         @seq = check_fasta_seq(seq)
@@ -73,6 +73,74 @@ module ParseFasta
           self.desc == rec.desc && self.qual == rec.qual
     end
 
+    # Return a fastA or fastQ record ready to print.
+    #
+    # If the Record is fastQ like then it returns a fastQ record
+    # string. If the record is fastA like, then it returns a fastA
+    # record string.
+    #
+    # @return [String] a printable sequence record
+    #
+    # @example When the record is fastA like
+    #   rec = Record.new header: "Apple", seq: "ACTG"
+    #   rec.to_s #=> ">Apple\nACTG"
+    #
+    # @example When the record is fastQ like
+    #   rec = Record.new header: "Apple", seq: "ACTG", desc: "Hi", qual: "IIII"
+    #   rec.to_s #=> "@Apple\nACTG\n+Hi\nIIII"
+    def to_s
+      if fastq?
+        "@#{@header}\n#{@seq}\n+#{@desc}\n#{qual}"
+      else
+        ">#{header}\n#{seq}"
+      end
+    end
+
+    # Returns a fastA record ready to print.
+    #
+    # If the record is fastQ like, the desc and qual are dropped.
+    #
+    # @return [String] a printable fastA sequence record
+    #
+    # @example When the record is fastA like
+    #   rec = Record.new header: "Apple", seq: "ACTG"
+    #   rec.to_fasta #=> ">Apple\nACTG"
+    #
+    # @example When the record is fastQ like
+    #   rec = Record.new header: "Apple", seq: "ACTG", desc: "Hi", qual: "IIII"
+    #   rec.to_fasta #=> ">Apple\nACTG"
+    def to_fasta
+      ">#{header}\n#{seq}"
+    end
+
+    # Returns a fastA record ready to print.
+    #
+    # If the record is fastA like, the desc and qual can be specified.
+    #
+    # @return [String] a printable fastQ sequence record
+    #
+    # @example When the record is fastA like, no args
+    #   rec = Record.new header: "Apple", seq: "ACTG"
+    #   rec.to_fastq #=> "@Apple\nACTG\n+\nIIII"
+    #
+    # @example When the record is fastA like, desc and qual specified
+    #   rec = Record.new header: "Apple", seq: "ACTG"
+    #   rec.to_fastq decs: "Hi", qual: "A" #=> "@Apple\nACTG\n+Hi\nAAAA"
+    #
+    # @example When the record is fastQ like
+    #   rec = Record.new header: "Apple", seq: "ACTG", desc: "Hi", qual: "IIII"
+    #   rec.to_fastq #=> ">Apple\nACTG"
+    def to_fastq opts = {}
+      if fastq?
+        "@#{@header}\n#{@seq}\n+#{@desc}\n#{qual}"
+      else
+        qual_char = opts.fetch :qual, "I"
+        desc  = opts.fetch :desc, ""
+        "@#{@header}\n#{@seq}\n+#{desc}\n#{qual_char * @seq.length}"
+      end
+
+    end
+
     private
 
     def check_fasta_seq seq
@@ -83,6 +151,10 @@ module ParseFasta
       else
         seq
       end
+    end
+
+    def fastq?
+      true if @qual
     end
   end
 end
