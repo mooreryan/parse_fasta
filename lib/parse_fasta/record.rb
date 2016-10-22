@@ -44,7 +44,7 @@ module ParseFasta
     # @param desc [String] the description line of a fastQ record
     # @param qual [String] the quality string of a fastQ record
     #
-    # @raise [SequenceFormatError] if a fastA sequence has a '>'
+    # @raise [ParseFasta::Error::SequenceFormatError] if a fastA sequence has a '>'
     #   character in it
     def initialize args = {}
       @header = args.fetch :header
