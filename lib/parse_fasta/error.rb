@@ -24,6 +24,10 @@ module ParseFasta
     class ParseFastaError < StandardError
     end
 
+    # Raised when a method has a bad argument
+    class ArgumentError < ParseFastaError
+    end
+
     # Raised when the input file doesn't look like fastA or fastQ
     class DataFormatError < ParseFastaError
     end

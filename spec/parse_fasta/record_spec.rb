@@ -155,8 +155,42 @@ module ParseFasta
           expect(rec.to_fastq).to eq "@apple\nactg\n+\nIIII"
         end
 
-        it "can specify the qual string value" do
-          expect(rec.to_fastq qual: "A").to eq "@apple\nactg\n+\nAAAA"
+        context "specifying values for qual string" do
+          it "can specify the qual string value (single value)" do
+            expect(rec.to_fastq qual: "A").to eq "@apple\nactg\n+\nAAAA"
+          end
+
+          it "can specify complex qual string values (uneven division)" do
+            seq  = "actgactgactgactg"
+            qual = "1@c1@c1@c1@c1@c1"
+            rec = Record.new header: "apple", seq: seq
+
+            expect(rec.to_fastq qual: "1@c").to eq "@apple\n#{seq}\n+\n#{qual}"
+          end
+
+          it "can specify complex qual string values (even division)" do
+            seq  = "actgactgactgactg"
+            qual = "a1a1a1a1a1a1a1a1"
+            rec = Record.new header: "apple", seq: seq
+
+            expect(rec.to_fastq qual: "a1").to eq "@apple\n#{seq}\n+\n#{qual}"
+          end
+
+          it "can specify complex qual string values (full length)" do
+            seq  = "actgactgactgactg"
+            qual = "a1a1a1a1a1a1a1a1"
+            rec = Record.new header: "apple", seq: seq
+
+            expect(rec.to_fastq qual: qual).to eq "@apple\n#{seq}\n+\n#{qual}"
+          end
+
+          it "raises ParseFasta::Error::ArgumentError when :qual is empty" do
+            seq  = "actgactgactgactg"
+            qual = "IIIIIIIIIIIIIIII"
+            rec = Record.new header: "apple", seq: seq
+
+            expect{rec.to_fastq qual: ""}.to raise_error ParseFasta::Error::ArgumentError
+          end
         end
 
         it "can specify the description" do
@@ -176,6 +210,5 @@ module ParseFasta
         end
       end
     end
-
   end
 end

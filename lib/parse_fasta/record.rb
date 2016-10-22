@@ -90,9 +90,9 @@ module ParseFasta
     #   rec.to_s #=> "@Apple\nACTG\n+Hi\nIIII"
     def to_s
       if fastq?
-        "@#{@header}\n#{@seq}\n+#{@desc}\n#{qual}"
+        to_fastq
       else
-        ">#{header}\n#{seq}"
+        to_fasta
       end
     end
 
@@ -127,18 +127,28 @@ module ParseFasta
     #   rec = Record.new header: "Apple", seq: "ACTG"
     #   rec.to_fastq decs: "Hi", qual: "A" #=> "@Apple\nACTG\n+Hi\nAAAA"
     #
+    # @example When the record is fastA like, can specify fancy qual strings
+    #   rec = Record.new header: "Apple", seq: "ACTGACTG"
+    #   rec.to_fastq decs: "Hi", qual: "!a2" #=> "@Apple\nACTG\n+Hi\n!a2!a2!a"
+    #
     # @example When the record is fastQ like
     #   rec = Record.new header: "Apple", seq: "ACTG", desc: "Hi", qual: "IIII"
     #   rec.to_fastq #=> ">Apple\nACTG"
+    #
+    # @raise [ParseFasta::Error::ArgumentError] if qual is ""
     def to_fastq opts = {}
       if fastq?
         "@#{@header}\n#{@seq}\n+#{@desc}\n#{qual}"
       else
-        qual_char = opts.fetch :qual, "I"
-        desc  = opts.fetch :desc, ""
-        "@#{@header}\n#{@seq}\n+#{desc}\n#{qual_char * @seq.length}"
-      end
+        qual = opts.fetch :qual, "I"
+        check_qual qual
 
+        desc  = opts.fetch :desc, ""
+
+        qual_str = make_qual_str qual
+
+        "@#{@header}\n#{@seq}\n+#{desc}\n#{qual_str}"
+      end
     end
 
     private
@@ -155,6 +165,17 @@ module ParseFasta
 
     def fastq?
       true if @qual
+    end
+
+    def make_qual_str qual
+      (qual * (@seq.length / qual.length.to_f).ceil)[0, @seq.length]
+    end
+
+    def check_qual qual
+      if qual.length.zero?
+        raise ParseFasta::Error::ArgumentError,
+              ":qual was '#{qual.inspect}', but it can't be empty"
+      end
     end
   end
 end
