@@ -77,3 +77,11 @@ ParseFasta::SeqFile.open(ARGV[0]).each_record do |rec|
   end  
 end
 ```
+
+And there is a nice `#to_s` method, that does what it should whether the record is fastA or fastQ like. Check out the docs for info on the fancy `#to_fasta` and `#to_fastq` methods!
+
+```ruby
+ParseFasta::SeqFile.open(ARGV[0]).each_record do |rec|
+  puts rec.to_s
+end
+```
