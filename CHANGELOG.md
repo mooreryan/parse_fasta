@@ -1,5 +1,9 @@
 ## Versions ##
 
+### 2.1.1 ###
+
+Speed up `Record.new`
+
 ### 2.1.0 ###
 
 Add `#to_s`, `#to_fasta`, and `#to_fastq` to `Record`.

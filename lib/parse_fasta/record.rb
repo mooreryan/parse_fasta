@@ -52,9 +52,10 @@ module ParseFasta
       @desc = args.fetch :desc, nil
       @qual = args.fetch :qual, nil
 
-      @qual.gsub!(/\s+/, "") if @qual
+      @qual.tr!(" \t\n\r", "") if @qual
 
-      seq = args.fetch(:seq).gsub(/\s+/, "")
+      seq = args.fetch(:seq)
+      seq.tr!(" \t\n\r", "")
 
       if fastq? # is fastQ
         @seq = seq
@@ -163,7 +164,7 @@ module ParseFasta
     private
 
     def check_fasta_seq seq
-      if seq.match ">"
+      if seq.include? ">"
         raise ParseFasta::Error::SequenceFormatError,
               "A sequence contained a '>' character " +
                   "(the fastA file record separator)"

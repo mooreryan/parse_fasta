@@ -62,7 +62,7 @@ ParseFasta::SeqFile.open(ARGV[0]).each_record do |rec|
     # it's a fastQ record
   else
     # it's a fastA record
-  end  
+  end
 end
 ```
 
@@ -74,7 +74,7 @@ ParseFasta::SeqFile.open(ARGV[0]).each_record do |rec|
     # it's a fastQ record
   else
     # it's a fastA record
-  end  
+  end
 end
 ```
 
@@ -83,5 +83,13 @@ And there is a nice `#to_s` method, that does what it should whether the record 
 ```ruby
 ParseFasta::SeqFile.open(ARGV[0]).each_record do |rec|
   puts rec.to_s
+end
+```
+
+But of course, since it is a `#to_s` override...you don't even have to call it directly!
+
+```ruby
+ParseFasta::SeqFile.open(ARGV[0]).each_record do |rec|
+  puts rec
 end
 ```

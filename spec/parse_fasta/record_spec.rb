@@ -27,11 +27,11 @@ module ParseFasta
 
     let(:fasta_rec) {
       Record.new header: header,
-                 seq:    "A C\t\t   T   G\r"
+                 seq:    "A \r\n\r\n\tC\t\t \n  T   G\r"
     }
     let(:fastq_rec) {
       Record.new header: header,
-                 seq:    "A C\t\t   T   G\r",
+                 seq:    "A \r\n\r\n\tC\t\t \n  T   G\r",
                  desc:   desc,
                  qual:   " a  b \tcd "
     }
