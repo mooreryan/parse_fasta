@@ -22,6 +22,9 @@ module ParseFasta
     # @!attribute header
     #   @return [String] the full header of the record without the '>'
     #     or '@'
+    # @!attribute id
+    #   @return [String] the "id" i.e., the first token when split by
+    #     whitespace
     # @!attribute seq
     #   @return [String] the sequence of the record
     # @!attribute desc
@@ -30,7 +33,7 @@ module ParseFasta
     # @!attribute qual
     #   @return [String or Nil] if the record is from a fastA file, it
     #     is nil; else, the quality string of the fastQ record
-    attr_accessor :header, :seq, :desc, :qual
+    attr_accessor :header, :id, :seq, :desc, :qual
 
     # The constructor takes keyword args.
     #
@@ -48,6 +51,7 @@ module ParseFasta
     #   character in it
     def initialize args = {}
       @header = args.fetch :header
+      @id = @header.split(" ")[0]
 
       @desc = args.fetch :desc, nil
       @qual = args.fetch :qual, nil

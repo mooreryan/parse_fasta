@@ -21,8 +21,9 @@ require "spec_helper"
 module ParseFasta
   describe Record do
     let(:header)  { "apple pie is good"}
+    let(:id)      { "apple" }
     let(:seq)     { "ACTG" }
-    let(:desc) { "apple" }
+    let(:desc)    { "apple" }
     let(:qual)    { "abcd" }
 
     let(:fasta_rec) {
@@ -37,15 +38,31 @@ module ParseFasta
     }
 
     describe "::new" do
-      context "fastA input" do
+      context "either fastA or fastQ" do
         it "sets :header" do
           expect(fasta_rec.header).to eq header
+          expect(fastq_rec.header).to eq header
         end
 
         it "sets :seq" do
           expect(fasta_rec.seq).to eq seq
+          expect(fastq_rec.seq).to eq seq
         end
 
+        it "sets :id" do
+          expect(fasta_rec.id).to eq id
+          expect(fastq_rec.id).to eq id
+        end
+
+        it "sets :id to the first token when split by whitespace" do
+          rec = Record.new header: "apple\tpie is good",
+                           seq: "actg"
+
+          expect(rec.id).to eq "apple"
+        end
+      end
+
+      context "fastA input" do
         it "sets :desc to nil" do
           expect(fasta_rec.desc).to eq nil
         end
@@ -65,19 +82,11 @@ module ParseFasta
       end
 
       context "fastQ input" do
-        it "sets :header" do
-          expect(fastq_rec.header).to eq header
-        end
-
-        it "sets :seq" do
-          expect(fastq_rec.seq).to eq seq
-        end
-
-        it "sets :desc to nil" do
+        it "sets :desc to desc" do
           expect(fastq_rec.desc).to eq desc
         end
 
-        it "sets :qual to nil" do
+        it "sets :qual to qual" do
           expect(fastq_rec.qual).to eq qual
         end
 

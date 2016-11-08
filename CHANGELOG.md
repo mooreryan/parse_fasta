@@ -1,5 +1,9 @@
 ## Versions ##
 
+### 2.2.0 ###
+
+Add `id` attribute to `Record`.
+
 ### 2.1.1 ###
 
 Speed up `Record.new`
