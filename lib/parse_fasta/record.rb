@@ -33,7 +33,7 @@ module ParseFasta
     # @!attribute qual
     #   @return [String or Nil] if the record is from a fastA file, it
     #     is nil; else, the quality string of the fastQ record
-    attr_accessor :header, :id, :seq, :desc, :qual
+    #attr_accessor :header, :id, :seq, :desc, :qual
 
     # The constructor takes keyword args.
     #
@@ -49,23 +49,36 @@ module ParseFasta
     #
     # @raise [ParseFasta::Error::SequenceFormatError] if a fastA sequence has a '>'
     #   character in it
-    def initialize args = {}
-      @header = args.fetch :header
-      @id = @header.split(" ")[0]
+    # def initialize args = {}
+    #   @header = args.fetch :header
+    #   @id = @header.split(" ")[0]
 
-      @desc = args.fetch :desc, nil
-      @qual = args.fetch :qual, nil
+    #   @desc = args.fetch :desc, nil
+    #   @qual = args.fetch :qual, nil
 
-      @qual.tr!(" \t\n\r", "") if @qual
+    #   @qual.tr!(" \t\n\r", "") if @qual
 
-      seq = args.fetch(:seq)
-      seq.tr!(" \t\n\r", "")
+    #   seq = args.fetch(:seq)
+    #   seq.tr!(" \t\n\r", "")
 
-      if fastq? # is fastQ
-        @seq = seq
-      else # is fastA
-        @seq = check_fasta_seq(seq)
-      end
+    #   if fastq? # is fastQ
+    #     @seq = seq
+    #   else # is fastA
+    #     @seq = check_fasta_seq(seq)
+    #   end
+    # end
+    def initialize header:, seq:, desc: nil, qual: nil
+      # if qual.nil?
+      #   check_fasta_seq seq
+      # end
+
+      # if qual.nil? && fasta_seq_bad?(seq)
+      #   raise ParseFasta::Error::SequenceFormatError,
+      #         "A sequence contained a '>' character " +
+      #         "(the fastA file record separator)"
+      # end
+
+      create header, seq, desc, qual, ParseFasta::Error::SequenceFormatError
     end
 
     # Compare attrs of this rec with another
@@ -167,15 +180,15 @@ module ParseFasta
 
     private
 
-    def check_fasta_seq seq
-      if seq.include? ">"
-        raise ParseFasta::Error::SequenceFormatError,
-              "A sequence contained a '>' character " +
-                  "(the fastA file record separator)"
-      else
-        seq
-      end
-    end
+    # def check_fasta_seq seq
+    #   if seq.include? ">"
+    #     raise ParseFasta::Error::SequenceFormatError,
+    #           "A sequence contained a '>' character " +
+    #               "(the fastA file record separator)"
+    #   else
+    #     seq
+    #   end
+    # end
 
     def make_qual_str qual
       (qual * (@seq.length / qual.length.to_f).ceil)[0, @seq.length]

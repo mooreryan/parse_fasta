@@ -17,9 +17,32 @@
 # along with parse_fasta.  If not, see <http://www.gnu.org/licenses/>.
 
 require "parse_fasta/version"
-require "parse_fasta/record"
 require "parse_fasta/seq_file"
 require "parse_fasta/error"
 
+require "parse_fasta/parse_fasta" # The C ext
+require "parse_fasta/record" # Monkey patch of C ext
+
 module ParseFasta
+  # class Record
+  #   def initialize header:, seq:, desc: nil, qual: nil
+  #     if qual.nil?
+  #       check_fasta_seq seq
+  #     end
+
+  #     create header, seq, desc, qual
+  #   end
+
+  #   private
+
+  #   def check_fasta_seq seq
+  #     if seq.include? ">"
+  #       raise ParseFasta::Error::SequenceFormatError,
+  #             "A sequence contained a '>' character " +
+  #                 "(the fastA file record separator)"
+  #     else
+  #       seq
+  #     end
+  #   end
+  # end
 end
