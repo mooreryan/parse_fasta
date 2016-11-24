@@ -192,5 +192,5 @@ void Init_parse_fasta(void)
   pfa_mParseFasta = rb_define_module("ParseFasta");
 
   pfa_init_record();
-  pfa_init_seq_file();
+  /* pfa_init_seq_file(); */
 }

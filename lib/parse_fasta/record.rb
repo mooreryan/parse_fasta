@@ -87,7 +87,6 @@ module ParseFasta
     #
     # @return [Bool] true or false
     def == rec
-      p [:self, self, :rec, rec]
       self.header == rec.header && self.seq == rec.seq &&
           self.desc == rec.desc && self.qual == rec.qual
     end
