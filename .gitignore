@@ -22,3 +22,5 @@ tmp
 mkmf.log
 .ruby-*
 .idea
+time.html
+big_test_files

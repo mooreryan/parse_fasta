@@ -30,4 +30,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "yard", "~> 0.8"
   spec.add_development_dependency "rdiscount"
   spec.add_development_dependency "coveralls", "~> 0.7"
+  spec.add_development_dependency "benchmark-ips", "~> 2.7", ">= 2.7.2"
 end
