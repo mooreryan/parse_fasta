@@ -110,23 +110,23 @@ module ParseFasta
       end
     end
 
-    def parse_fasta_line line, header, sequence, &b
-      line.chomp!
-      len = line.length
+    # def parse_fasta_line line, header, sequence, &b
+    #   line.chomp!
+    #   len = line.length
 
-      if header.empty? && line.start_with?(">")
-        header = line[1, len] # drop the '>'
-      elsif line.start_with? ">"
-        yield Record.new(header: header.strip, seq: sequence)
+    #   if header.empty? && line.start_with?(">")
+    #     header = line[1, len] # drop the '>'
+    #   elsif line.start_with? ">"
+    #     yield Record.new(header: header.strip, seq: sequence)
 
-        header = line[1, len]
-        sequence = ""
-      else
-        sequence << line
-      end
+    #     header = line[1, len]
+    #     sequence = ""
+    #   else
+    #     sequence << line
+    #   end
 
-      [header, sequence]
-    end
+    #   [header, sequence]
+    # end
 
     def parse_fastq_line line, header, seq, desc, qual, count, &b
       line.chomp!
@@ -162,7 +162,7 @@ module ParseFasta
 
       line_reader = which_line_reader file_reader
       file_reader.send(*line_reader) do |line|
-        header, sequence = parse_fasta_line line, header, sequence, &b
+        header, sequence = parse_fasta_line line, header, sequence, ParseFasta::Error::ParseFastaError, &b
       end
 
       # yield the final seq

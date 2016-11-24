@@ -38,7 +38,7 @@ module ParseFasta
     }
 
     let(:fasta_records) {
-      [Record.new(header: "empty seq at beginning",
+      [Record.new(header: "empty seq at beginningRYAN",
                   seq: ""),
        Record.new(header: "seq1 is fun",
                   seq: "AACTGGNNN"),
