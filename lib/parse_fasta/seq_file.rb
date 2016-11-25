@@ -109,33 +109,33 @@ module ParseFasta
       end
     end
 
-    def parse_fastq_line line, header, seq, desc, qual, count, &b
-      line.chomp!
+    # def parse_fastq_line line, header, seq, desc, qual, count, &b
+    #   line.chomp!
 
-      case count
-        when 0
-          header = line[1..-1]
-        when 1
-          seq = line
-        when 2
-          desc = line[1..-1]
-        when 3
-          count = -1
-          qual = line
+    #   case count
+    #     when 0
+    #       header = line[1..-1]
+    #     when 1
+    #       seq = line
+    #     when 2
+    #       desc = line[1..-1]
+    #     when 3
+    #       count = -1
+    #       qual = line
 
-          yield Record.new(header: header,
-                           seq:    seq,
-                           desc:   desc,
-                           qual:   qual)
-        else
-          raise ParseFasta::Error::ParseFastaError,
-                "Something went wrong in parse_fastq_line"
-      end
+    #       yield Record.new(header: header,
+    #                        seq:    seq,
+    #                        desc:   desc,
+    #                        qual:   qual)
+    #     else
+    #       raise ParseFasta::Error::ParseFastaError,
+    #             "Something went wrong in parse_fastq_line"
+    #   end
 
-      count += 1
+    #   count += 1
 
-      [header, seq, desc, qual, count]
-    end
+    #   [header, seq, desc, qual, count]
+    # end
 
     # def parse_fasta_line line, header, sequence, &b
     #   line.chomp!
@@ -162,7 +162,7 @@ module ParseFasta
       line_reader = which_line_reader file_reader
       file_reader.send(*line_reader) do |line|
         header, sequence =
-                parse_fasta_line_hoohaa line,
+                parse_fasta_line line,
                                  header,
                                  sequence,
                                  ParseFasta::Error::DataFormatError,

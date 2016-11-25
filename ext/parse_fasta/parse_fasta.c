@@ -1,21 +1,21 @@
 #include <ruby.h>
 
-static VALUE pfa_new_record(VALUE, VALUE, VALUE, VALUE, VALUE, VALUE);
+/* static VALUE pfa_new_record(VALUE, VALUE, VALUE, VALUE, VALUE, VALUE); */
+static VALUE pfa_new_record(VALUE, VALUE, VALUE);
 
 VALUE pfa_mParseFasta;
 VALUE pfa_cRecord;
 VALUE pfa_cSeqFile;
 
-/* TODO: can str ever have non newline endings? */
-static void pfa_chomp(VALUE str)
-{
-  long len   = RSTRING_LEN(str);
-  char * end = RSTRING_END(str);
+/* static void pfa_chomp(VALUE str) */
+/* { */
+/*   long len   = RSTRING_LEN(str); */
+/*   char * end = RSTRING_END(str); */
 
-  if (*(end-1) == '\n') {
-    rb_str_set_len(str, len-1);
-  }
-}
+/*   if (*(end-1) == '\n' || *(end-1) == '\r') { */
+/*     rb_str_set_len(str, len-1); */
+/*   } */
+/* } */
 
 static int pfa_is_empty(VALUE str)
 {
@@ -79,28 +79,12 @@ pfa_parse_fasta_line(VALUE self,
                      VALUE exception)
 {
 
-  pfa_chomp(line);
+  rb_funcall(line, rb_intern("chomp!"), 0);
 
   if (pfa_is_empty(header) && pfa_is_header(line)) {
     // drop the >
     header = pfa_drop_first_char(line);
   } else if (pfa_is_header(line)) {
-    // yield Record.new(header: header.strip, seq: sequence)
-    /* VALUE record = pfa_new_record(rb_cObject, */
-    /*                               pfa_strip(header), */
-    /*                               sequence, */
-    /*                               Qnil, */
-    /*                               Qnil, */
-    /*                               exception); */
-
-    /* VALUE record = rb_funcall(pfa_cRecord, */
-    /*                           rb_intern("new"), */
-    /*                           4, */
-    /*                           pfa_strip(header), */
-    /*                           sequence, */
-    /*                           Qnil, */
-    /*                           Qnil); */
-
     VALUE hash = rb_hash_new();
     rb_hash_aset(hash, rb_to_symbol(rb_str_new2("header")), pfa_strip(header));
     rb_hash_aset(hash, rb_to_symbol(rb_str_new2("seq")), sequence);
@@ -116,6 +100,63 @@ pfa_parse_fasta_line(VALUE self,
 
   return rb_ary_new_from_args(2, header, sequence);
 }
+
+static VALUE
+pfa_parse_fastq_line(VALUE self,
+                     VALUE line,
+                     VALUE header,
+                     VALUE seq,
+                     VALUE desc,
+                     VALUE qual,
+                     VALUE count)
+{
+  rb_funcall(line, rb_intern("chomp!"), 0);
+
+  long line_count = NUM2LONG(count);
+
+  switch (line_count) {
+  case 0:
+    header = pfa_drop_first_char(line);
+    break;
+  case 1:
+    seq = line;
+    break;
+  case 2:
+    desc = pfa_drop_first_char(line);
+    break;
+  case 3:
+    line_count = -1;
+    qual = line;
+
+    VALUE hash = rb_hash_new();
+    rb_hash_aset(hash, rb_to_symbol(rb_str_new2("header")), header);
+    rb_hash_aset(hash, rb_to_symbol(rb_str_new2("seq")), seq);
+    rb_hash_aset(hash, rb_to_symbol(rb_str_new2("desc")), desc);
+    rb_hash_aset(hash, rb_to_symbol(rb_str_new2("qual")), qual);
+    VALUE record = rb_class_new_instance(1, &hash, pfa_cRecord);
+
+    rb_yield_values(1, record);
+
+    break;
+  default:
+    fprintf(stderr,
+            "ERROR -- parse_fasta.c in pfa_parse_fastq_line: "
+            "in the default!\n");
+    exit(1);
+  }
+
+  ++line_count;
+
+  return rb_ary_new_from_args(5,
+                              header,
+                              seq,
+                              desc,
+                              qual,
+                              LONG2NUM(line_count));
+}
+
+
+
 
 static VALUE
 pfa_is_fasta_seq_bad(VALUE self, VALUE str)
@@ -152,14 +193,23 @@ pfa_remove_whitespace_bang(VALUE str)
              rb_str_new_literal(""));
 }
 
+/* static VALUE */
+/* pfa_new_record(VALUE self, */
+/*                 VALUE header, */
+/*                 VALUE seq, */
+/*                 VALUE desc, */
+/*                 VALUE qual, */
+/*                 VALUE exception) */
 static VALUE
 pfa_new_record(VALUE self,
-                VALUE header,
-                VALUE seq,
-                VALUE desc,
-                VALUE qual,
-                VALUE exception)
+               VALUE hash,
+               VALUE exception)
 {
+
+  VALUE header = rb_hash_aref(hash, rb_to_symbol(rb_str_new2("header")));
+  VALUE seq    = rb_hash_aref(hash, rb_to_symbol(rb_str_new2("seq")));
+  VALUE desc   = rb_hash_aref(hash, rb_to_symbol(rb_str_new2("desc")));
+  VALUE qual   = rb_hash_aref(hash, rb_to_symbol(rb_str_new2("qual")));
 
   pfa_remove_whitespace_bang(seq);
 
@@ -184,7 +234,8 @@ void pfa_init_seq_file(void)
 {
   pfa_cSeqFile = rb_define_class_under(pfa_mParseFasta, "SeqFile", rb_cObject);
 
-  rb_define_method(pfa_cSeqFile, "parse_fasta_line_hoohaa", pfa_parse_fasta_line, 4);
+  rb_define_method(pfa_cSeqFile, "parse_fasta_line", pfa_parse_fasta_line, 4);
+  rb_define_method(pfa_cSeqFile, "parse_fastq_line", pfa_parse_fastq_line, 6);
 }
 
 void pfa_init_record(void)
@@ -197,7 +248,7 @@ void pfa_init_record(void)
   rb_define_attr(pfa_cRecord, "desc", 1, 1);
   rb_define_attr(pfa_cRecord, "qual", 1, 1);
 
-  rb_define_method(pfa_cRecord, "create", pfa_new_record, 5);
+  rb_define_method(pfa_cRecord, "create", pfa_new_record, 2);
 
   rb_define_method(pfa_cRecord,
                    "fasta_seq_bad?",

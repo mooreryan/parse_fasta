@@ -79,12 +79,13 @@ module ParseFasta
       #         "(the fastA file record separator)"
       # end
 
-      header = args[:header]
-      seq    = args[:seq]
-      desc   = args[:desc]
-      qual   = args[:qual]
+      # header = args[:header]
+      # seq    = args[:seq]
+      # desc   = args[:desc]
+      # qual   = args[:qual]
 
-      create header, seq, desc, qual, ParseFasta::Error::SequenceFormatError
+      # create header, seq, desc, qual, ParseFasta::Error::SequenceFormatError
+      create args, ParseFasta::Error::SequenceFormatError
     end
 
     # Compare attrs of this rec with another
