@@ -71,7 +71,12 @@ static VALUE pfa_strip(VALUE str)
   return pfa_lstrip(pfa_rstrip(str));
 }
 
-static VALUE pfa_parse_fasta_line(VALUE self, VALUE line, VALUE header, VALUE sequence, VALUE exception)
+static VALUE
+pfa_parse_fasta_line(VALUE self,
+                     VALUE line,
+                     VALUE header,
+                     VALUE sequence,
+                     VALUE exception)
 {
 
   pfa_chomp(line);
@@ -81,12 +86,25 @@ static VALUE pfa_parse_fasta_line(VALUE self, VALUE line, VALUE header, VALUE se
     header = pfa_drop_first_char(line);
   } else if (pfa_is_header(line)) {
     // yield Record.new(header: header.strip, seq: sequence)
-    VALUE record = pfa_new_record(pfa_cRecord,
-                                  pfa_strip(header),
-                                  sequence,
-                                  Qnil,
-                                  Qnil,
-                                  exception);
+    /* VALUE record = pfa_new_record(rb_cObject, */
+    /*                               pfa_strip(header), */
+    /*                               sequence, */
+    /*                               Qnil, */
+    /*                               Qnil, */
+    /*                               exception); */
+
+    /* VALUE record = rb_funcall(pfa_cRecord, */
+    /*                           rb_intern("new"), */
+    /*                           4, */
+    /*                           pfa_strip(header), */
+    /*                           sequence, */
+    /*                           Qnil, */
+    /*                           Qnil); */
+
+    VALUE hash = rb_hash_new();
+    rb_hash_aset(hash, rb_to_symbol(rb_str_new2("header")), pfa_strip(header));
+    rb_hash_aset(hash, rb_to_symbol(rb_str_new2("seq")), sequence);
+    VALUE record = rb_class_new_instance(1, &hash, pfa_cRecord);
 
     rb_yield_values(1, record);
 
@@ -166,7 +184,7 @@ void pfa_init_seq_file(void)
 {
   pfa_cSeqFile = rb_define_class_under(pfa_mParseFasta, "SeqFile", rb_cObject);
 
-  rb_define_method(pfa_cSeqFile, "parse_fasta_line", pfa_parse_fasta_line, 4);
+  rb_define_method(pfa_cSeqFile, "parse_fasta_line_hoohaa", pfa_parse_fasta_line, 4);
 }
 
 void pfa_init_record(void)
@@ -192,5 +210,5 @@ void Init_parse_fasta(void)
   pfa_mParseFasta = rb_define_module("ParseFasta");
 
   pfa_init_record();
-  /* pfa_init_seq_file(); */
+  pfa_init_seq_file();
 }

@@ -67,7 +67,8 @@ module ParseFasta
     #     @seq = check_fasta_seq(seq)
     #   end
     # end
-    def initialize header:, seq:, desc: nil, qual: nil
+    #    def initialize header:, seq:, desc: nil, qual: nil
+    def initialize args = {} #header:, seq:, desc: nil, qual: nil
       # if qual.nil?
       #   check_fasta_seq seq
       # end
@@ -77,6 +78,11 @@ module ParseFasta
       #         "A sequence contained a '>' character " +
       #         "(the fastA file record separator)"
       # end
+
+      header = args[:header]
+      seq    = args[:seq]
+      desc   = args[:desc]
+      qual   = args[:qual]
 
       create header, seq, desc, qual, ParseFasta::Error::SequenceFormatError
     end
