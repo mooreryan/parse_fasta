@@ -1,4 +1,5 @@
 #include <ruby.h>
+#include <ctype.h>
 #include "bstrlib.h"
 
 /* static VALUE pfa_new_record(VALUE, VALUE, VALUE, VALUE, VALUE, VALUE); */
@@ -8,15 +9,21 @@ VALUE pfa_mParseFasta;
 VALUE pfa_cRecord;
 VALUE pfa_cSeqFile;
 
-/* static void pfa_chomp(VALUE str) */
-/* { */
-/*   long len   = RSTRING_LEN(str); */
-/*   char * end = RSTRING_END(str); */
+static void pfa_chomp_bang(VALUE str)
+{
+  long len   = RSTRING_LEN(str);
+  char * end = RSTRING_END(str);
 
-/*   if (*(end-1) == '\n' || *(end-1) == '\r') { */
-/*     rb_str_set_len(str, len-1); */
-/*   } */
-/* } */
+  if (*(end-1) == '\r') {
+    rb_str_set_len(str, len-1);
+  } else if (*(end-1) == '\n') {
+    if (*(end-2) == '\r') {
+      rb_str_set_len(str, len-2);
+    } else {
+      rb_str_set_len(str, len-1);
+    }
+  }
+}
 
 static int pfa_is_empty(VALUE str)
 {
@@ -80,7 +87,8 @@ pfa_parse_fasta_line(VALUE self,
                      VALUE exception)
 {
 
-  rb_funcall(line, rb_intern("chomp!"), 0);
+  /* rb_funcall(line, rb_intern("chomp!"), 0); */
+  pfa_chomp_bang(line);
 
   if (pfa_is_empty(header) && pfa_is_header(line)) {
     // drop the >
@@ -138,7 +146,8 @@ pfa_parse_fastq_line(VALUE self,
                      VALUE qual,
                      VALUE count)
 {
-  rb_funcall(line, rb_intern("chomp!"), 0);
+  /* rb_funcall(line, rb_intern("chomp!"), 0); */
+  pfa_chomp_bang(line);
 
   long line_count = NUM2LONG(count);
 
@@ -206,20 +215,53 @@ pfa_is_fasta_seq_bad(VALUE self, VALUE str)
 static VALUE
 pfa_id_from_header(VALUE header)
 {
-  VALUE ary = rb_funcall(header, rb_intern("split"), 1, rb_str_new_literal(" "));
+  /* VALUE ary = rb_funcall(header, rb_intern("split"), 1, rb_str_new_literal(" ")); */
 
-  return rb_ary_entry(ary, 0);
+  /* return rb_ary_entry(ary, 0); */
+
+  char * str = StringValueCStr(header);
+  long len = RSTRING_LEN(header);
+  long i = 0;
+
+  for (i = 0; i < len && !isspace(str[i]); ++i) {
+    ;
+  }
+
+  return rb_str_new(str, i);
 }
 
-static void
-pfa_remove_whitespace_bang(VALUE str)
+/* static void */
+/* pfa_remove_whitespace_bang(VALUE str) */
+/* { */
+/*   rb_funcall(str, */
+/*              rb_intern("tr!"), */
+/*              2, */
+/*              rb_str_new_literal(" \t\n\r"), */
+/*              rb_str_new_literal("")); */
+/* } */
+
+static VALUE
+pfa_remove_whitespace(VALUE str)
 {
-  rb_funcall(str,
-             rb_intern("tr!"),
-             2,
-             rb_str_new_literal(" \t\n\r"),
-             rb_str_new_literal(""));
+  char * s = StringValueCStr(str);
+  long len = RSTRING_LEN(str);
+  long i = 0;
+  long new_s_idx = 0;
+  char new_s[len+1];
+  char c;
+
+  for (i = 0; i < len; ++i) {
+    c = s[i];
+    if (!isspace(c)) {
+      new_s[new_s_idx++] = c;
+    }
+  }
+
+  new_s[new_s_idx] = '\0';
+
+  return rb_str_new2(new_s);
 }
+
 
 /* static VALUE */
 /* pfa_new_record(VALUE self, */
@@ -239,10 +281,10 @@ pfa_new_record(VALUE self,
   VALUE desc   = rb_hash_aref(hash, rb_to_symbol(rb_str_new2("desc")));
   VALUE qual   = rb_hash_aref(hash, rb_to_symbol(rb_str_new2("qual")));
 
-  pfa_remove_whitespace_bang(seq);
+  seq = pfa_remove_whitespace(seq);
 
   if (!NIL_P(qual)) {
-    pfa_remove_whitespace_bang(qual);
+    qual = pfa_remove_whitespace(qual);
   } else if (pfa_is_fasta_seq_bad(self, seq)) {
       rb_raise(exception,
                "A sequence contained a '>' character "
