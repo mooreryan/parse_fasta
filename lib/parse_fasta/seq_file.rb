@@ -34,6 +34,14 @@ module ParseFasta
     def initialize fname
       type = check_file fname
 
+      @gzipped = gzipped? fname
+      @cr_only = nil
+
+      if !@gzipped
+        # check for \r only
+        @cr_only = cr_only? fname
+      end
+
       @fname = fname
       @type = type
     end
@@ -73,7 +81,7 @@ module ParseFasta
     def each_record &b
       line_parser = "parse_#{@type}_lines"
 
-      if gzipped? @fname
+      if @gzipped
         each_record_gzipped line_parser, &b
       else
         each_record_non_gzipped line_parser, &b
@@ -160,15 +168,26 @@ module ParseFasta
       sequence = ""
 
       line_reader = which_line_reader file_reader
-      file_reader.send(*line_reader) do |line|
-        header, sequence =
-                parse_fasta_line line,
-                                 header,
-                                 sequence,
-                                 ParseFasta::Error::DataFormatError,
-                                 &b
-      end
 
+      if @cr_only || @gzipped
+        file_reader.send(*line_reader) do |line|
+          header, sequence =
+                  parse_fasta_line line,
+                                   header,
+                                   sequence,
+                                   ParseFasta::Error::DataFormatError,
+                                   &b
+        end
+      else
+        each_line(file_reader.path) do |line|
+          header, sequence =
+                  parse_fasta_line line,
+                                   header,
+                                   sequence,
+                                   ParseFasta::Error::DataFormatError,
+                                   &b
+        end
+      end
       # yield the final seq
       yield Record.new(header: header.strip, seq: sequence)
     end
@@ -181,9 +200,30 @@ module ParseFasta
       qual   = ""
 
       line_reader = which_line_reader file_reader
-      file_reader.send(*line_reader) do |line|
-        header, seq, desc, qual, count =
-            parse_fastq_line line, header, seq, desc, qual, count, &b
+
+      if @cr_only || @gzipped
+        file_reader.send(*line_reader) do |line|
+          header, seq, desc, qual, count =
+                                   parse_fastq_line(line,
+                                                    header,
+                                                    seq,
+                                                    desc,
+                                                    qual,
+                                                    count,
+                                                    &b)
+        end
+      else
+        each_line(file_reader.path) do |line|
+          header, seq, desc, qual, count =
+                                   parse_fastq_line(line,
+                                                    header,
+                                                    seq,
+                                                    desc,
+                                                    qual,
+                                                    count,
+                                                    &b)
+
+        end
       end
     end
 
@@ -252,7 +292,27 @@ module ParseFasta
       else
         raise ParseFasta::Error::DataFormatError,
               "The file does not look like fastA or fastQ " +
-                  "-- #{fname}"
+              "-- #{fname}"
+      end
+    end
+
+    # only called on non-gz files
+    def cr_only? fname
+      lineno = 0
+      # when not using "t" mode, \r are not counted as newlines, but
+      # \n or \r\n will be
+      File.open(fname).each_line do |line|
+        lineno += 1
+
+        if lineno >= 2
+          break
+        end
+      end
+
+      if lineno >= 2
+        false
+      else
+        true
       end
     end
   end

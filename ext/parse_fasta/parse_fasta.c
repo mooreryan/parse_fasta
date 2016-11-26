@@ -1,4 +1,5 @@
 #include <ruby.h>
+#include "bstrlib.h"
 
 /* static VALUE pfa_new_record(VALUE, VALUE, VALUE, VALUE, VALUE, VALUE); */
 static VALUE pfa_new_record(VALUE, VALUE, VALUE);
@@ -100,6 +101,33 @@ pfa_parse_fasta_line(VALUE self,
 
   return rb_ary_new_from_args(2, header, sequence);
 }
+
+static VALUE
+pfa_each_line(VALUE self, VALUE fname)
+{
+  bstring str = bfromcstr("");
+  char line_term = '\n';
+  struct bStream *bstream;
+  FILE *fp;
+  char *cstr;
+  int i;
+
+  fp = fopen(StringValueCStr(fname), "r");
+  if (fp == NULL) perror ("Error opening file");
+  bstream = bsopen((bNread) fread, fp);
+
+  while ((i = bsreadln(str, bstream, line_term)) != EOF && i != BSTR_ERR) {
+    cstr = bstr2cstr(str, '0');
+    rb_yield(rb_str_new_cstr(cstr));
+  }
+
+  bsclose(bstream);
+  fclose(fp);
+  bdestroy(str);
+
+  return Qnil;
+}
+
 
 static VALUE
 pfa_parse_fastq_line(VALUE self,
@@ -236,6 +264,7 @@ void pfa_init_seq_file(void)
 
   rb_define_method(pfa_cSeqFile, "parse_fasta_line", pfa_parse_fasta_line, 4);
   rb_define_method(pfa_cSeqFile, "parse_fastq_line", pfa_parse_fastq_line, 6);
+  rb_define_method(pfa_cSeqFile, "each_line", pfa_each_line, 1);
 }
 
 void pfa_init_record(void)
