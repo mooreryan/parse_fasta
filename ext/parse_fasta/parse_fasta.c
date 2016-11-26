@@ -136,6 +136,85 @@ pfa_each_line(VALUE self, VALUE fname)
   return Qnil;
 }
 
+static VALUE
+pfa_each_record_fastq_fast(VALUE self, VALUE fname)
+{
+  int i;
+  long lineno = 0;
+  char line_term = '\n';
+
+  bstring line   = bfromcstr("");
+  bstring header = bfromcstr("");
+  bstring seq    = bfromcstr("");
+  bstring desc   = bfromcstr("");
+  bstring qual   = bfromcstr("");
+
+  FILE *fp;
+  struct bStream *bstream;
+
+  fp = fopen(StringValueCStr(fname), "r");
+  if (fp == NULL) perror ("Error opening file");
+  bstream = bsopen((bNread) fread, fp);
+
+  while ((i = bsreadln(line, bstream, line_term)) != EOF && i != BSTR_ERR) {
+    brtrimws(line);
+
+    switch (lineno) {
+    case 0:
+      header = bmidstr(line, 1, blength(line));
+      break;
+    case 1:
+      seq = bstrcpy(line);
+      break;
+    case 2:
+      desc = bmidstr(line, 1, blength(line));
+      break;
+    case 3:
+      lineno = -1;
+      qual = bstrcpy(line);
+
+      VALUE hash = rb_hash_new();
+      rb_hash_aset(hash,
+                   rb_to_symbol(rb_str_new2("header")),
+                   rb_str_new_cstr(bstr2cstr(header, '0')));
+      rb_hash_aset(hash,
+                   rb_to_symbol(rb_str_new2("seq")),
+                   rb_str_new_cstr(bstr2cstr(seq, '0')));
+      rb_hash_aset(hash,
+                   rb_to_symbol(rb_str_new2("desc")),
+                   rb_str_new_cstr(bstr2cstr(desc, '0')));
+      rb_hash_aset(hash,
+                   rb_to_symbol(rb_str_new2("qual")),
+                   rb_str_new_cstr(bstr2cstr(qual, '0')));
+
+      VALUE record = rb_class_new_instance(1, &hash, pfa_cRecord);
+
+      rb_yield_values(1, record);
+
+      break;
+    default:
+      fprintf(stderr,
+              "ERROR -- parse_fasta.c in pfa_parse_fastq_line: "
+              "in the default!\n");
+      exit(1);
+    }
+
+    ++lineno;
+
+  }
+
+  bsclose(bstream);
+  fclose(fp);
+
+  bdestroy(line);
+  bdestroy(header);
+  bdestroy(seq);
+  bdestroy(desc);
+  bdestroy(qual);
+
+  return Qnil;
+}
+
 
 static VALUE
 pfa_parse_fastq_line(VALUE self,
@@ -307,6 +386,7 @@ void pfa_init_seq_file(void)
   rb_define_method(pfa_cSeqFile, "parse_fasta_line", pfa_parse_fasta_line, 4);
   rb_define_method(pfa_cSeqFile, "parse_fastq_line", pfa_parse_fastq_line, 6);
   rb_define_method(pfa_cSeqFile, "each_line", pfa_each_line, 1);
+  rb_define_method(pfa_cSeqFile, "each_record_fastq_fast", pfa_each_record_fastq_fast, 1);
 }
 
 void pfa_init_record(void)

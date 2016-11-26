@@ -81,7 +81,9 @@ module ParseFasta
     def each_record &b
       line_parser = "parse_#{@type}_lines"
 
-      if @gzipped
+      if @type == :fastq && !@gzipped && !@cr_only
+        each_record_fastq_fast @fname, &b
+      elsif @gzipped
         each_record_gzipped line_parser, &b
       else
         each_record_non_gzipped line_parser, &b
