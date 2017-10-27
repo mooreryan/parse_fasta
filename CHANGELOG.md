@@ -1,5 +1,9 @@
 ## Versions ##
 
+### 2.3.0 ###
+
+Allow parsing of fastA files with `>` characters in the sequence with the `check_fasta_seq: false` option.
+
 ### 2.2.0 ###
 
 Add `id` attribute to `Record`.

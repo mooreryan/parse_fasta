@@ -26,14 +26,18 @@ module ParseFasta
 
     # @param fname [String] the name of the fastA or fastQ file to
     #   parse
+    # @param type [Symbol] whether the file is :fasta or :fastq
+    # @param check_fasta_seq [Bool] keyword arg for whether to check
+    #   for '>' in the sequence of fastA files.
     #
     # @raise [ParseFasta::Error::FileNotFoundError] if the file is not
     #   found
     # @raise [ParseFasta::Error::DataFormatError] if the file doesn't
     #   start with a '>' or a '@'
-    def initialize fname
+    def initialize fname, args = {}
       type = check_file fname
 
+      @check_fasta_seq = args.fetch :check_fasta_seq, true
       @fname = fname
       @type = type
     end
@@ -41,8 +45,8 @@ module ParseFasta
     # An alias for SeqFile.new
     #
     # @return [SeqFile] a SeqFile object
-    def self.open fname
-      self.new fname
+    def self.open fname, args = {}
+      self.new fname, args
     end
 
     # Analagous to IO#each_line, SeqFile#each_record is used to go
@@ -69,7 +73,8 @@ module ParseFasta
     #   the info of the record
     #
     # @raise [ParseFasta::Error::SequenceFormatError] if a fastA file
-    #   contains a record with a '>' character in the header
+    #   contains a record with a '>' character in the header, and the
+    #   SeqFile object was not initialized with check_fasta_seq: false
     def each_record &b
       line_parser = "parse_#{@type}_lines"
 
@@ -117,7 +122,9 @@ module ParseFasta
       if header.empty? && line.start_with?(">")
         header = line[1, len] # drop the '>'
       elsif line.start_with? ">"
-        yield Record.new(header: header.strip, seq: sequence)
+        yield Record.new(header: header.strip,
+                         seq: sequence,
+                         check_fasta_seq: @check_fasta_seq)
 
         header = line[1, len]
         sequence = ""
@@ -166,7 +173,9 @@ module ParseFasta
       end
 
       # yield the final seq
-      yield Record.new(header: header.strip, seq: sequence)
+      yield Record.new(header: header.strip,
+                       seq: sequence,
+                       check_fasta_seq: @check_fasta_seq)
     end
 
     def parse_fastq_lines file_reader, &b

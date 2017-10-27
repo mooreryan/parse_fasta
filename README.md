@@ -24,6 +24,8 @@ Or install it yourself as:
 
 Provides nice, programmatic access to fasta and fastq files. It's faster and more lightweight than BioRuby. And more fun!
 
+It takes care of a lot of whacky edge cases like parsing multi-blob gzipped files, and being strict on formatting by default.
+
 ## Documentation ##
 
 Checkout
@@ -90,6 +92,14 @@ But of course, since it is a `#to_s` override...you don't even have to call it d
 
 ```ruby
 ParseFasta::SeqFile.open(ARGV[0]).each_record do |rec|
+  puts rec
+end
+```
+
+Sometimes your fasta file might have record separators (`>`) withen the "sequence". For example, CD-HIT's `.clstr` files have headers within what would be the sequence part of the record. `ParseFasta` is really strict about formatting and will raise an error when trying to read these types of files. If you would like to parse them, use the `check_fasta_seq: false` flag like so:
+
+```ruby
+ParseFasta::SeqFile.open(ARGV[0], check_fasta_seq: false).each_record do |rec|
   puts rec
 end
 ```

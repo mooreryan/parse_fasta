@@ -36,6 +36,9 @@ module ParseFasta
     let(:fastq_gz) {
       File.join test_dir, "seqs.fq.gz"
     }
+    let(:with_rec_sep_in_seq) {
+      File.join test_dir, "with_rec_sep_in_seq.fa"
+    }
 
     let(:fasta_records) {
       [Record.new(header: "empty seq at beginning",
@@ -64,6 +67,14 @@ module ParseFasta
                   seq:    "ACTG",
                   desc:   "seq2 +pples",
                   qual:   "*ujM")]
+    }
+    let(:with_rec_sep_in_seq_records) {
+      [Record.new(header: "seq1",
+                  seq: "AAAA>TTTT",
+                  check_fasta_seq: false),
+       Record.new(header: "seq2",
+                  seq: "TTTT>AAAA",
+                  check_fasta_seq: false)]
     }
 
     # to test the line endings
@@ -149,6 +160,25 @@ module ParseFasta
 
 
           include_examples "it yields the records"
+        end
+
+        context "when the fasta file has '>' in a seq" do
+          context "when the check_fasta_seq flag is false" do
+            it "yields records even with '>' in the sequence" do
+              expect { |b|
+                SeqFile.open(with_rec_sep_in_seq,
+                             check_fasta_seq: false).each_record &b
+              }.to yield_successive_args(*with_rec_sep_in_seq_records)
+            end
+          end
+
+          context "when the check_fasta_seq flag is default" do
+            it "raises SequenceFormatError" do
+              expect { |b|
+                SeqFile.open(with_rec_sep_in_seq).each_record &b
+              }.to raise_error ParseFasta::Error::SequenceFormatError
+            end
+          end
         end
       end
 

@@ -72,11 +72,34 @@ module ParseFasta
         end
 
         context "when seq has a '>' in it" do
-          it "raises SequenceFormatError" do
-            str = "actg>sequence 3"
+          context "with default strictness" do
+            it "raises SequenceFormatError" do
+              str = "actg>sequence 3"
 
-            expect { Record.new header: header, seq: str }.
+              expect { Record.new header: header, seq: str }.
                 to raise_error ParseFasta::Error::SequenceFormatError
+            end
+          end
+
+          context "with lenient checking" do
+            it "does NOT raise error" do
+              str = "actg>sequence 3"
+
+              expect { Record.new(header: header,
+                                  seq: str,
+                                  check_fasta_seq: false) }.
+                not_to raise_error
+            end
+
+            it "gives the sequence as is" do
+              str = "actg>sequence 3"
+
+              rec = Record.new(header: header,
+                               seq: str.dup,
+                               check_fasta_seq: false)
+
+              expect(rec.seq).to eq str.tr(" ", "")
+            end
           end
         end
       end

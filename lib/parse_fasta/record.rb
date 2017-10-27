@@ -39,6 +39,8 @@ module ParseFasta
     #
     # @example Init a new Record object for a fastA record
     #   Record.new header: "apple", seq: "actg"
+    # @example Init a new Record object for a fastA record without checking for '>' in the sequence.
+    #   Record.new header: "apple", seq: "pie>good", check_fasta_seq: false
     # @example Init a new Record object for a fastQ record
     #   Record.new header: "apple", seq: "actd", desc: "", qual: "IIII"
     #
@@ -46,9 +48,16 @@ module ParseFasta
     # @param seq [String] the sequence of the record
     # @param desc [String] the description line of a fastQ record
     # @param qual [String] the quality string of a fastQ record
+    # @param check_fasta_seq [Bool] Pass false if you don't want to
+    #   check for '>' characters in the sequence. Defaults to true,
+    #   which checks for '>' in the sequence and raises an error.
     #
-    # @raise [ParseFasta::Error::SequenceFormatError] if a fastA sequence has a '>'
-    #   character in it
+    # @raise [ParseFasta::Error::SequenceFormatError] if a fastA
+    #   sequence has a '>' character in it, and :check_fasta_seq is
+    #   NOT set to false.
+    #
+    # @todo This is destructive with respect to the input seq
+    #   arg. Does it need to be?
     def initialize args = {}
       @header = args.fetch :header
       @id = @header.split(" ")[0]
@@ -61,9 +70,11 @@ module ParseFasta
       seq = args.fetch(:seq)
       seq.tr!(" \t\n\r", "")
 
-      if fastq? # is fastQ
+      do_check_fasta_seq = args.fetch :check_fasta_seq, true
+
+      if fastq? || (!fastq? && !do_check_fasta_seq)
         @seq = seq
-      else # is fastA
+      else
         @seq = check_fasta_seq(seq)
       end
     end
