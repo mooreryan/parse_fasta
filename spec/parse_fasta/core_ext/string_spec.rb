@@ -26,6 +26,14 @@ module ParseFasta
 
           expect(aln.remove_gaps "N").to eq expected
         end
+
+        it "can handle multiple weird gap chars" do
+          # The '-' and '^' chars are treated specially by String#tr.
+          aln = ".A----C_t~~~~g^G3"
+          expected = "ACtgG"
+
+          expect(aln.remove_gaps '^._-~3').to eq expected
+        end
       end
     end
   end
