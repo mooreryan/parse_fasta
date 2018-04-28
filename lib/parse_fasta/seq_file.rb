@@ -209,6 +209,8 @@ module ParseFasta
       line_reader
     end
 
+    # Get the first char of the file whether it is gzip'd or not.  No
+    # need to rewind the stream afterwards.
     def get_first_char fname
       if File.exists? fname
         begin
@@ -217,8 +219,10 @@ module ParseFasta
           f = File.open fname
         end
 
+
         begin
-          first_char = f.each_char.peek[0]
+          first_char = f.each.peek[0]
+
           return first_char
         ensure
           f.close

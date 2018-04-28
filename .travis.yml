@@ -7,12 +7,41 @@ rvm:
   - 2.3
   - 2.4
   - 2.5
-  
+  - ruby-head
+  - jruby-head
+
+jdk:
+  - oraclejdk8
+  - oraclejdk9
+
+matrix:
+  exclude:
+    - rvm: 2.1
+      jdk: oraclejdk8
+    - rvm: 2.1
+      jdk: oraclejdk9
+    - rvm: 2.2
+      jdk: oraclejdk8
+    - rvm: 2.2
+      jdk: oraclejdk9
+    - rvm: 2.3
+      jdk: oraclejdk8
+    - rvm: 2.3
+      jdk: oraclejdk9
+    - rvm: 2.4
+      jdk: oraclejdk8
+    - rvm: 2.4
+      jdk: oraclejdk9
+    - rvm: 2.5
+      jdk: oraclejdk8
+    - rvm: 2.5
+      jdk: oraclejdk9
+
 script: 'bundle exec rake'
 
 notifications:
   email:
     recipients:
       - moorer@udel.edu
-    on_failure: change
-    on_success: never
+    on_failure: always
+    on_success: always

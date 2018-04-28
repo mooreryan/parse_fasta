@@ -19,6 +19,10 @@ And then execute:
 Or install it yourself as:
 
     $ gem install parse_fasta
+    
+### JRuby ###
+
+If you want to use `ParseFasta` with JRuby, make sure to use version >= 2.5.    
 
 ## Overview ##
 
