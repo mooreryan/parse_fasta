@@ -27,3 +27,7 @@ big_test_files
 
 *rake*
 *single*
+TEST_*
+
+expected.fa
+test.rb

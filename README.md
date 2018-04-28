@@ -22,7 +22,7 @@ Or install it yourself as:
     
 ### JRuby ###
 
-If you want to use `ParseFasta` with JRuby, make sure to use version >= 2.5.    
+ParseFasta doesn't work with JRuby for now `D:`
 
 ## Overview ##
 
